@@ -1,6 +1,9 @@
+import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:flutter/material.dart';
 
 class ManageProductsScreen extends StatefulWidget {
+  const ManageProductsScreen({super.key});
+
   @override
   _ManageProductsScreenState createState() => _ManageProductsScreenState();
 }
@@ -14,9 +17,9 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
     _loadProducts();
   }
 
-  _loadProducts() async {
+  Future<void> _loadProducts() async {
     // Load products from database
-    final database = await DatabaseHelper.instance;
+    final database = DatabaseHelper.instance;
     _products = await database.getProducts();
     setState(() {});
   }
@@ -25,7 +28,7 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Products'),
+        title: const Text('Manage Products'),
       ),
       body: ListView.builder(
         itemCount: _products.length,
@@ -34,16 +37,17 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
             title: Text(_products[index].name),
             subtitle: Text(_products[index].description),
             trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                   onPressed: () {
                     // Navigate to edit product screen
                     Navigator.pushNamed(context, '/edit_product', arguments: _products[index]);
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
                   onPressed: () {
                     // Delete product from database
                     _deleteProduct(_products[index]);
@@ -59,15 +63,15 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
           // Navigate to add product screen
           Navigator.pushNamed(context, '/add_product');
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
 
-  _deleteProduct(Product product) async {
+  Future<void> _deleteProduct(Product product) async {
     // Delete product from database
-    final database = await DatabaseHelper.instance;
-    await database.deleteProduct(product);
-    setState(() {});
+    final database = DatabaseHelper.instance;
+    await database.deleteProduct(product.id!);
+    _loadProducts();
   }
 }

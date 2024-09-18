@@ -1,19 +1,24 @@
+import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:flutter/material.dart';
 
 class AddProductScreen extends StatefulWidget {
+  const AddProductScreen({super.key});
+
   @override
   _AddProductScreenState createState() => _AddProductScreenState();
 }
 
 class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _name, _description, _price;
+  String _name = '';
+  String _description = '';
+  String _price = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Product'),
+        title: const Text('Add Product'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -22,45 +27,44 @@ class _AddProductScreenState extends State<AddProductScreen> {
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a name';
                   }
                   return null;
                 },
-                onSaved: (value) => _name = value,
+                onSaved: (value) => _name = value!,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a description';
                   }
                   return null;
                 },
-                onSaved: (value) => _description = value,
+                onSaved: (value) => _description = value!,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: const InputDecoration(labelText: 'Price'),
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a price';
                   }
                   return null;
                 },
-                onSaved: (value) => _price = value,
+                onSaved: (value) => _price = value!,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    _formKey.currentState.save();
-                    // Add product to database
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
                     _addProduct();
                   }
                 },
-                child: Text('Add Product'),
+                child: const Text('Add Product'),
               ),
             ],
           ),
@@ -69,16 +73,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  _addProduct() async {
-    // Add product to database
-    final database = await DatabaseHelper.instance;
+  Future<void> _addProduct() async {
+    final database = DatabaseHelper.instance;
     final product = Product(
       name: _name,
       description: _description,
       price: double.parse(_price),
     );
     await database.addProduct(product);
-    // Navigate to products screen
     Navigator.pushNamed(context, '/products');
   }
 }

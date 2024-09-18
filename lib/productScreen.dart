@@ -1,6 +1,9 @@
+import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:flutter/material.dart';
 
 class ProductScreen extends StatefulWidget {
+  const ProductScreen({super.key});
+
   @override
   _ProductScreenState createState() => _ProductScreenState();
 }
@@ -14,9 +17,9 @@ class _ProductScreenState extends State<ProductScreen> {
     _loadProducts();
   }
 
-  _loadProducts() async {
-    // Load products from database or API
-    final database = await DatabaseHelper.instance;
+  Future<void> _loadProducts() async {
+    // Load products from database
+    final database = DatabaseHelper.instance;
     _products = await database.getProducts();
     setState(() {});
   }
@@ -25,7 +28,7 @@ class _ProductScreenState extends State<ProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Products'),
+        title: const Text('Products'),
       ),
       body: ListView.builder(
         itemCount: _products.length,

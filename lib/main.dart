@@ -1,20 +1,22 @@
+import 'package:empoderaecommerce/addProductScreen.dart';
+import 'package:empoderaecommerce/cartScreen.dart';
+import 'package:empoderaecommerce/checkoutScreen.dart';
+import 'package:empoderaecommerce/editProductScreen.dart';
+import 'package:empoderaecommerce/editProfileScreen.dart';
+import 'package:empoderaecommerce/loginScreen.dart';
+import 'package:empoderaecommerce/manageProductScreen.dart';
+import 'package:empoderaecommerce/productDetailScreen.dart';
+import 'package:empoderaecommerce/productScreen.dart';
+import 'package:empoderaecommerce/profileScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:your_app/login_screen.dart';
-import 'package:your_app/product_screen.dart';
-import 'package:your_app/product_details_screen.dart';
-import 'package:your_app/cart_screen.dart';
-import 'package:your_app/checkout_screen.dart';
-import 'package:your_app/add_product_screen.dart';
-import 'package:your_app/edit_product_screen.dart';
-import 'package:your_app/manage_products_screen.dart';
-import 'package:your_app/profile_screen.dart';
-import 'package:your_app/edit_profile_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

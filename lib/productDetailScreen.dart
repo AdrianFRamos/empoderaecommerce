@@ -1,17 +1,20 @@
+import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:flutter/material.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
+  const ProductDetailsScreen({super.key});
+
   @override
   _ProductDetailsScreenState createState() => _ProductDetailsScreenState();
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  Product _product;
+  late Product _product;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _product = ModalRoute.of(context).settings.arguments;
+    _product = ModalRoute.of(context)!.settings.arguments as Product;
   }
 
   @override
@@ -23,16 +26,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(_product.description),
-            Text('Price: ${_product.price}'),
-            SizedBox(height: 20),
+            Text('Price: \$${_product.price}'),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Add product to cart
                 _addToCart(_product);
               },
-              child: Text('Add to Cart'),
+              child: const Text('Add to Cart'),
             ),
           ],
         ),
@@ -40,11 +44,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  _addToCart(Product product) async {
+  Future<void> _addToCart(Product product) async {
     // Add product to cart
-    final cart = await DatabaseHelper.instance.getCart();
-    cart.add(product);
-    await DatabaseHelper.instance.updateCart(cart);
+    final database = DatabaseHelper.instance;
+    await database.addProductToCart(product.id!);
     // Navigate to cart screen
     Navigator.pushNamed(context, '/cart');
   }

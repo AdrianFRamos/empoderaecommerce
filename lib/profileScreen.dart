@@ -1,3 +1,4 @@
+import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -6,19 +7,19 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  User _user;
+  late User _user;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _user = ModalRoute.of(context).settings.arguments;
+    _user = ModalRoute.of(context)!.settings.arguments as User;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Perfil de Usuário'),
+        title: const Text('Perfil de Usuário'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -26,33 +27,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundImage: NetworkImage(_user.avatarUrl),
+              backgroundImage: _user.avatarUrl.isNotEmpty
+                  ? NetworkImage(_user.avatarUrl)
+                  : AssetImage('assets/default_avatar.png') as ImageProvider,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               _user.name,
-              style: TextStyle(fontSize: 24),
+              style: const TextStyle(fontSize: 24),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               _user.email,
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Editar perfil
                 _editProfile();
               },
-              child: Text('Editar Perfil'),
+              child: const Text('Editar Perfil'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 // Sair da conta
                 _logout();
               },
-              child: Text('Sair da Conta'),
+              child: const Text('Sair da Conta'),
             ),
           ],
         ),
@@ -60,12 +63,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  _editProfile() {
+  void _editProfile() {
     // Navegar para a tela de edição de perfil
     Navigator.pushNamed(context, '/edit_profile', arguments: _user);
   }
 
-  _logout() {
+  void _logout() {
     // Sair da conta
     // Remover o token de autenticação
     // Navegar para a tela de login

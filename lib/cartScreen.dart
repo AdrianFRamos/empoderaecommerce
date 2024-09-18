@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:empoderaecommerce/helper/databaseHelper.dart';
 
 class CartScreen extends StatefulWidget {
+  const CartScreen({super.key});
+
   @override
   _CartScreenState createState() => _CartScreenState();
 }
@@ -14,9 +17,9 @@ class _CartScreenState extends State<CartScreen> {
     _loadCart();
   }
 
-  _loadCart() async {
+  Future<void> _loadCart() async {
     // Load cart from database
-    final database = await DatabaseHelper.instance;
+    final database = DatabaseHelper.instance;
     _cart = await database.getCart();
     setState(() {});
   }
@@ -25,7 +28,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cart'),
+        title: const Text('Cart'),
       ),
       body: ListView.builder(
         itemCount: _cart.length,
@@ -34,7 +37,7 @@ class _CartScreenState extends State<CartScreen> {
             title: Text(_cart[index].name),
             subtitle: Text('Price: ${_cart[index].price}'),
             trailing: IconButton(
-              icon: Icon(Icons.remove),
+              icon: const Icon(Icons.remove),
               onPressed: () {
                 // Remove product from cart
                 _removeFromCart(_cart[index]);
@@ -48,16 +51,16 @@ class _CartScreenState extends State<CartScreen> {
           // Navigate to checkout screen
           Navigator.pushNamed(context, '/checkout');
         },
-        child: Icon(Icons.checkout),
+        child: const Icon(Icons.check_circle),
       ),
     );
   }
 
-  _removeFromCart(Product product) async {
+  Future<void> _removeFromCart(Product product) async {
     // Remove product from cart
-    final cart = await DatabaseHelper.instance.getCart();
-    cart.remove(product);
-    await DatabaseHelper.instance.updateCart(cart);
+    final database = DatabaseHelper.instance;
+    await database.removeProductFromCart(product.id!);
+    _cart = await database.getCart();
     setState(() {});
   }
 }

@@ -1,19 +1,23 @@
+import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _email, _password;
+  String _email = '';
+  String _password = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text('Login'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -22,36 +26,35 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(labelText: 'Email'),
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter an email';
                   }
                   return null;
                 },
-                onSaved: (value) => _email = value,
+                onSaved: (value) => _email = value!,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a password';
                   }
                   return null;
                 },
-                onSaved: (value) => _password = value,
+                onSaved: (value) => _password = value!,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    _formKey.currentState.save();
-                    // Login logic here
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
                     _loginUser();
                   }
                 },
-                child: Text('Login'),
+                child: const Text('Login'),
               ),
             ],
           ),
@@ -60,21 +63,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  _loginUser() async {
-  // Check if user exists in database
-  final database = await DatabaseHelper.instance;
-  final user = await database.getUserByEmailAndPassword(_email, _password);
+  Future<void> _loginUser() async {
+    final database = await DatabaseHelper.instance;
+    final user = await database.getUserByEmailAndPassword(_email, _password);
 
-  if (user != null) {
-    // Navigate to home screen
-    Navigator.pushReplacementNamed(context, '/home');
-  } else {
-    // Show error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Invalid email or password'),
-      ),
-    );
+    if (user != null) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid email or password'),
+        ),
+      );
+    }
   }
-}
 }
