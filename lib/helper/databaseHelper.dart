@@ -50,9 +50,13 @@ class DatabaseHelper {
     ''');
   }
 
-  Future<int> createUser(User user) async {
+  Future<int> insertUser(String name, String email, String password) async {
     final db = await database;
-    return await db.insert('users', user.toMap());
+    return await db.insert('users', {
+      'name': name,
+      'email': email,
+      'password': password,
+    });
   }
 
   Future<int> updateUser(User user) async {
@@ -136,9 +140,15 @@ class User {
   final String name;
   final String email;
   final String password;
-  final String avatarUrl;
+  final String? avatarUrl;
 
-  User({required this.id, required this.name, required this.email, required this.password, required this.avatarUrl});
+  User({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.password,
+    this.avatarUrl,
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -152,14 +162,15 @@ class User {
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id'],
-      name: map['name'],
-      email: map['email'],
-      password: map['password'],
+      id: map['id'] ?? 0,
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      password: map['password'] ?? '',
       avatarUrl: map['avatarUrl'],
     );
   }
 }
+
 
 class Product {
   final int? id;

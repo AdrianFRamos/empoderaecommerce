@@ -2,6 +2,10 @@ import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final User user;
+
+  const ProfileScreen({super.key, required this.user});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -10,9 +14,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late User _user;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _user = ModalRoute.of(context)!.settings.arguments as User;
+  void initState() {
+    super.initState();
+    _user = widget.user;
   }
 
   @override
@@ -27,9 +31,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundImage: _user.avatarUrl.isNotEmpty
-                  ? NetworkImage(_user.avatarUrl)
-                  : AssetImage('assets/default_avatar.png') as ImageProvider,
+              backgroundImage: _user.avatarUrl?.isNotEmpty == true
+                  ? NetworkImage(_user.avatarUrl!)
+                  : null,
+              child: _user.avatarUrl?.isNotEmpty != true
+                  ? const Icon(Icons.person, size: 50)
+                  : null,
             ),
             const SizedBox(height: 20),
             Text(
