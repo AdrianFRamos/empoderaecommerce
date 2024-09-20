@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:empoderaecommerce/helper/databaseHelper.dart';
-import 'package:empoderaecommerce/profileScreen.dart';
 import 'package:empoderaecommerce/manageProductScreen.dart';
 import 'package:empoderaecommerce/cartScreen.dart';
 
@@ -14,7 +13,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
-  String _searchQuery = '';
   User? _user;
 
   @override
@@ -50,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
 
     setState(() {
-      _searchQuery = query;
       _filteredProducts = filteredProducts;
     });
   }
