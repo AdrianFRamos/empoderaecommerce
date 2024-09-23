@@ -1,7 +1,10 @@
+import 'package:empoderaecommerce/controller/loginController.dart';
+import 'package:empoderaecommerce/controller/productController.dart';
+import 'package:empoderaecommerce/models/productModel.dart';
+import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:flutter/material.dart';
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
-import 'package:empoderaecommerce/manageProductScreen.dart';
-import 'package:empoderaecommerce/cartScreen.dart';
+import 'package:empoderaecommerce/screens/manageProductScreen.dart';
+import 'package:empoderaecommerce/screens/cartScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,8 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadProducts() async {
-    final database = DatabaseHelper.instance;
-    final products = await database.getProducts();
+    final productcontroller = Productcontroller();
+    final products = await productcontroller.getProducts();
     setState(() {
       _products = products;
       _filteredProducts = products;
@@ -32,9 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadUser() async {
-    // Exemplo de como carregar o usuário logado
-    final database = DatabaseHelper.instance;
-    final user = await database.getUserByEmailAndPassword('user@example.com', 'password'); // Substitua pelos dados reais
+    final logincontroller = LoginController();
+    final user = await logincontroller.getUserByEmailAndPassword('user@example.com', 'password'); // Substitua pelos dados reais
     setState(() {
       _user = user;
     });

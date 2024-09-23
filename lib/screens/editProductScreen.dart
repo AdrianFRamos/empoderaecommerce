@@ -1,24 +1,33 @@
 import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:flutter/material.dart';
 
-class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({super.key});
+class EditProductScreen extends StatefulWidget {
+  const EditProductScreen({super.key});
 
   @override
-  _AddProductScreenState createState() => _AddProductScreenState();
+  _EditProductScreenState createState() => _EditProductScreenState();
 }
 
-class _AddProductScreenState extends State<AddProductScreen> {
+class _EditProductScreenState extends State<EditProductScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  String _description = '';
-  String _price = '';
+  late String _name, _description, _price;
+  late Product _product;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _product = ModalRoute.of(context)!.settings.arguments as Product;
+    _name = _product.name;
+    _description = _product.description;
+    _price = _product.price.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Product'),
+        title: const Text('Edit Product'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -28,6 +37,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             children: [
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Name'),
+                initialValue: _name,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a name';
@@ -38,6 +48,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Description'),
+                initialValue: _description,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -48,6 +59,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Price'),
+                initialValue: _price,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a price';
@@ -61,10 +73,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    _addProduct();
+                    // Update product in database
+                    _updateProduct();
                   }
                 },
-                child: const Text('Add Product'),
+                child: const Text('Update Product'),
               ),
             ],
           ),
@@ -73,14 +86,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  Future<void> _addProduct() async {
+  Future<void> _updateProduct() async {
+    // Update product in database
     final database = DatabaseHelper.instance;
     final product = Product(
+      id: _product.id,
       name: _name,
       description: _description,
       price: double.parse(_price),
     );
-    await database.addProduct(product);
+    await database.updateProduct(product);
+    // Navigate to products screen
     Navigator.pushNamed(context, '/products');
   }
 }

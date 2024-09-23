@@ -1,5 +1,6 @@
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/controller/loginController.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,8 +11,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
+  final LoginController controller = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +24,9 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Form(
           key: _formKey,
           child: Column(
-            children: [
+            children: <Widget>[
               TextFormField(
+                controller: controller.emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -33,9 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _email = value!,
               ),
               TextFormField(
+                controller: controller.passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 validator: (value) {
@@ -44,14 +45,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _password = value!,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    _loginUser();
+                    controller.loginUser(context);
                   }
                 },
                 child: const Text('Login'),
@@ -68,20 +67,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _loginUser() async {
-    final database = DatabaseHelper.instance;
-    final user = await database.getUserByEmailAndPassword(_email, _password);
-
-    if (user != null) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid email or password'),
-        ),
-      );
-    }
   }
 }

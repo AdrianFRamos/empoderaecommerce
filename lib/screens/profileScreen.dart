@@ -1,4 +1,4 @@
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {

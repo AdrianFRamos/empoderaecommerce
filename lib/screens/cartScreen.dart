@@ -1,3 +1,4 @@
+import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:flutter/material.dart';
 import 'package:empoderaecommerce/helper/databaseHelper.dart';
 

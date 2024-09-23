@@ -1,24 +1,22 @@
-import 'package:empoderaecommerce/addProductScreen.dart';
-import 'package:empoderaecommerce/cartScreen.dart';
-import 'package:empoderaecommerce/checkoutScreen.dart';
-import 'package:empoderaecommerce/editProductScreen.dart';
-import 'package:empoderaecommerce/editProfileScreen.dart';
-import 'package:empoderaecommerce/loginScreen.dart';
-import 'package:empoderaecommerce/manageProductScreen.dart';
-import 'package:empoderaecommerce/productDetailScreen.dart';
-import 'package:empoderaecommerce/productScreen.dart';
-import 'package:empoderaecommerce/profileScreen.dart';
-import 'package:empoderaecommerce/registerScreen.dart';
-import 'package:empoderaecommerce/homeScreen.dart';
-import 'package:empoderaecommerce/helper/databaseHelper.dart'; 
+import 'package:empoderaecommerce/models/userModel.dart';
+import 'package:empoderaecommerce/screens/addProductScreen.dart';
+import 'package:empoderaecommerce/screens/cartScreen.dart';
+import 'package:empoderaecommerce/screens/checkoutScreen.dart';
+import 'package:empoderaecommerce/screens/editProductScreen.dart';
+import 'package:empoderaecommerce/screens/editProfileScreen.dart';
+import 'package:empoderaecommerce/screens/loginScreen.dart';
+import 'package:empoderaecommerce/screens/manageProductScreen.dart';
+import 'package:empoderaecommerce/screens/productDetailScreen.dart';
+import 'package:empoderaecommerce/screens/productScreen.dart';
+import 'package:empoderaecommerce/screens/profileScreen.dart';
+import 'package:empoderaecommerce/screens/registerScreen.dart';
+import 'package:empoderaecommerce/screens/homeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  // Inicialize o databaseFactory para sqflite_common_ffi
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
-
   runApp(const MyApp());
 }
 

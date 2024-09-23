@@ -1,4 +1,5 @@
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/controller/userController.dart';
+import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:flutter/material.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -71,7 +72,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    // Atualizar o perfil do usuário
                     _updateProfile();
                   }
                 },
@@ -93,8 +93,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       avatarUrl: _user.avatarUrl, 
     );
 
-    final dbHelper = DatabaseHelper.instance;
-    await dbHelper.updateUser(updatedUser);
+    final usercontroller = Usercontroller();
+    await usercontroller.updateUser(updatedUser);
 
     Navigator.pushNamed(context, '/profile', arguments: updatedUser);
   }

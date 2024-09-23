@@ -1,4 +1,5 @@
 import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:flutter/material.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
