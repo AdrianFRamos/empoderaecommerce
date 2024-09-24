@@ -8,3 +8,8 @@ class AppColor {
   static const Color softCream = Color(0xFFFFF2E2);
   static const Color lightBrown = Color(0xFFD1B399);
 }
+
+class AppTitleSubTitle {
+  static const String tituloHome = 'Ecommerce';
+  static const String subTitleHome = 'Ecommerce2';
+}

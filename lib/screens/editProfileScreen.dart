@@ -93,7 +93,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       avatarUrl: _user.avatarUrl, 
     );
 
-    final usercontroller = Usercontroller();
+    final usercontroller = UserController();
     await usercontroller.updateUser(updatedUser);
 
     Navigator.pushNamed(context, '/profile', arguments: updatedUser);

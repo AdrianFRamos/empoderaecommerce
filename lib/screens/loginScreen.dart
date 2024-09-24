@@ -1,3 +1,4 @@
+import 'package:empoderaecommerce/const/colors.dart';
 import 'package:empoderaecommerce/controller/loginController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,8 +17,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.softPink,
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text(AppTitleSubTitle.tituloHome),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -50,7 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    controller.loginUser(context);
+                    Navigator.pushNamed(context, '/Home');
+                    //controller.loginUser(context);
+                  }else{
+                    Text('Alguma excessão ocorreu');
                   }
                 },
                 child: const Text('Login'),

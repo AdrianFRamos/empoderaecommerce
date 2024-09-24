@@ -1,4 +1,4 @@
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/controller/cartController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +20,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _calculateTotal() async {
     // Calculate total price of products in cart
-    final cart = await DatabaseHelper.instance.getCart();
+    final cartcontroller = CartController();
+    var cart = await cartcontroller.getCart();
     double total = 0;
     for (Product product in cart) {
       total += product.price;
@@ -34,7 +35,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     // Process payment
     // Update order status in database
     // Clear the cart
-    await DatabaseHelper.instance.clearCart();
+    final cartcontroller = CartController();
+    await cartcontroller.clearCart();
     // Navigate to order confirmation screen
     Navigator.pushNamed(context, '/order_confirmation');
   }

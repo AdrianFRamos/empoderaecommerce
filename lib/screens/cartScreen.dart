@@ -1,6 +1,6 @@
+import 'package:empoderaecommerce/controller/cartController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:flutter/material.dart';
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -20,8 +20,8 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _loadCart() async {
     // Load cart from database
-    final database = DatabaseHelper.instance;
-    _cart = await database.getCart();
+    final cartcontroller = CartController();
+    _cart = await cartcontroller.getCart();
     setState(() {});
   }
 
@@ -59,9 +59,9 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _removeFromCart(Product product) async {
     // Remove product from cart
-    final database = DatabaseHelper.instance;
-    await database.removeProductFromCart(product.id!);
-    _cart = await database.getCart();
+    final cartcontroller = CartController();
+    await cartcontroller.removeProductFromCart(product.id!);
+    _cart = await cartcontroller.getCart();
     setState(() {});
   }
 }

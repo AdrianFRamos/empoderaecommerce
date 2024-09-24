@@ -1,4 +1,4 @@
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/controller/productController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:flutter/material.dart';
 
@@ -20,8 +20,8 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
 
   Future<void> _loadProducts() async {
     // Load products from database
-    final database = DatabaseHelper.instance;
-    _products = await database.getProducts();
+    final productcontroller = Productcontroller();
+    _products = await productcontroller.getProducts();
     setState(() {});
   }
 
@@ -71,8 +71,8 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
 
   Future<void> _deleteProduct(Product product) async {
     // Delete product from database
-    final database = DatabaseHelper.instance;
-    await database.deleteProduct(product.id!);
+    final productcontroller = Productcontroller();
+    await productcontroller.deleteProduct(product.id!);
     _loadProducts();
   }
 }

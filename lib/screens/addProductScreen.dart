@@ -1,4 +1,4 @@
-import 'package:empoderaecommerce/helper/databaseHelper.dart';
+import 'package:empoderaecommerce/controller/productController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:flutter/material.dart';
 
@@ -75,13 +75,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Future<void> _addProduct() async {
-    final database = DatabaseHelper.instance;
+    final productcontroller = Productcontroller();
     final product = Product(
       name: _name,
       description: _description,
       price: double.parse(_price),
     );
-    await database.addProduct(product);
+    await productcontroller.addProduct(product);
     Navigator.pushNamed(context, '/products');
   }
 }
