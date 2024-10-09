@@ -1,5 +1,7 @@
+import 'package:empoderaecommerce/controller/loginController.dart';
 import 'package:empoderaecommerce/controller/userController.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -25,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             children: [
               TextFormField(
-                controller: controller.e,
+                controller: controller.nameController,
                 decoration: const InputDecoration(labelText: 'Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -35,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
               ),
               TextFormField(
-                controller: _emailController,
+                controller: controller.emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -48,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
               ),
               TextFormField(
-                controller: _passwordController,
+                controller: controller.passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 validator: (value) {
@@ -76,9 +78,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
       // Obtém os valores dos controladores
-      final name = _nameController.text;
-      final email = _emailController.text;
-      final password = _passwordController.text;
+      final name = controller.nameController.text;
+      final email = controller.emailController.text;
+      final password = controller.passwordController.text;
 
       try {
         final usercontroller = UserController();
@@ -106,9 +108,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
+    controller.nameController.dispose();
+    controller.emailController.dispose();
+    controller.passwordController.dispose();
     super.dispose();
   }
 }

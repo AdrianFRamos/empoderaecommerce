@@ -1,9 +1,13 @@
 import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UserController extends GetxController {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
   // Getter para acessar o banco de dados
   Future<Database> get _database async {
     return await DatabaseHelper.instance.database;
