@@ -11,6 +11,7 @@ import 'package:empoderaecommerce/screens/productScreen.dart';
 import 'package:empoderaecommerce/screens/profileScreen.dart';
 import 'package:empoderaecommerce/screens/registerScreen.dart';
 import 'package:empoderaecommerce/screens/homeScreen.dart';
+import 'package:empoderaecommerce/screens/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -31,7 +32,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       routes: {
-        '/': (context) => const LoginScreen(),
+        '/': (context) => const SplashScreen(),
+        '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/register': (context) => const RegisterScreen(),
         '/products': (context) => const ProductScreen(),
@@ -53,6 +55,14 @@ class MyApp extends StatelessWidget {
           );
         }
         return null;
+      },
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => Scaffold(
+            appBar: AppBar(title: const Text('Página não encontrada')),
+            body: const Center(child: Text('404 - Página não encontrada')),
+          ),
+        );
       },
     );
   }

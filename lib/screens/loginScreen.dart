@@ -14,6 +14,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final LoginController controller = Get.put(LoginController());
 
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,13 +28,17 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               TextFormField(
                 controller: controller.emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter an email';
+                  } else if (!GetUtils.isEmail(value)) {
+                    return 'Invalid email format';
                   }
                   return null;
                 },
@@ -44,22 +50,38 @@ class _LoginScreenState extends State<LoginScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a password';
+                  } else if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.pushNamed(context, '/Home');
-                    //controller.loginUser(context);
-                  }else{
-                    Text('Alguma excessão ocorreu');
-                  }
-                },
-                child: const Text('Login'),
-              ),
+              _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      bool success = await controller.loginUser();
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      if (success) {
+                        Get.offAllNamed('/home'); 
+                      } else {
+                        Get.snackbar(
+                          'Login Failed', 
+                          'Invalid credentials',
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Login'),
+                ),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
