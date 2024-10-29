@@ -1,5 +1,6 @@
 import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:empoderaecommerce/screens/addProductScreen.dart';
+import 'package:empoderaecommerce/screens/calendarScreen.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
 import 'package:empoderaecommerce/screens/checkoutScreen.dart';
 import 'package:empoderaecommerce/screens/editProductScreen.dart';
@@ -13,6 +14,7 @@ import 'package:empoderaecommerce/screens/registerScreen.dart';
 import 'package:empoderaecommerce/screens/homeScreen.dart';
 import 'package:empoderaecommerce/screens/splashScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -26,7 +28,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Your App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -44,6 +46,7 @@ class MyApp extends StatelessWidget {
         '/edit_product': (context) => const EditProductScreen(),
         '/manage_products': (context) => const ManageProductsScreen(),
         '/edit_profile': (context) => const EditProfileScreen(),
+        '/calendar': (context) => const CalendarScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/profile') {

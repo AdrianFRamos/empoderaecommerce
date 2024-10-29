@@ -1,3 +1,4 @@
+import 'package:empoderaecommerce/const/saveUserSession.dart';
 import 'package:empoderaecommerce/controller/loginController.dart';
 import 'package:empoderaecommerce/controller/productController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
@@ -5,6 +6,7 @@ import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:flutter/material.dart';
 import 'package:empoderaecommerce/screens/manageProductScreen.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
+import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final LoginController _loginController = Get.put(LoginController());
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
   User? _user;
@@ -21,8 +24,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadProducts();
-    _loadUser();
+    _loadUser(); // Carrega o usuário logado
+    _loadProducts(); // Carrega os produtos
+  }
+
+  Future<void> _loadUser() async {
+    _user = await SaveUserSession.getUserFromSession();
+    setState(() {}); // Atualiza o estado para refletir o usuário
   }
 
   Future<void> _loadProducts() async {
@@ -34,24 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _loadUser() async {
-    final logincontroller = LoginController();
-    final user = await logincontroller.getUserByEmailAndPassword('user@example.com', 'password'); // Substitua pelos dados reais
-    setState(() {
-      _user = user;
-    });
-  }
-
-  void _filterProducts(String query) {
-    final filteredProducts = _products.where((product) {
-      final productName = product.name.toLowerCase();
-      final searchQuery = query.toLowerCase();
-      return productName.contains(searchQuery);
-    }).toList();
-
-    setState(() {
-      _filteredProducts = filteredProducts;
-    });
+  void _logout() {
+    _loginController.emailController.clear();
+    _loginController.passwordController.clear();
+    Get.offAllNamed('/login'); // Redireciona para a tela de login
   }
 
   @override
@@ -70,35 +64,60 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Text('Menu'),
             ),
+            const Divider(),
             ListTile(
               title: const Text('Profile'),
               onTap: () {
                 if (_user != null) {
-                  Navigator.pushNamed(
-                    context,
+                  Get.toNamed(
                     '/edit_profile',
-                    arguments: _user,
+                    arguments: _user, // Passa o usuário como argumento
+                  );
+                } else {
+                  Get.snackbar(
+                    'Erro',
+                    'Usuário não encontrado',
+                    snackPosition: SnackPosition.BOTTOM,
                   );
                 }
               },
             ),
+            const Divider(),
             ListTile(
               title: const Text('Manage Products'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ManageProductsScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const ManageProductsScreen(),
+                  ),
                 );
               },
             ),
+            const Divider(),
             ListTile(
               title: const Text('Cart'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CartScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const CartScreen(),
+                  ),
                 );
               },
+            ),
+            const Divider(),
+            ListTile(
+              title: const Text('Calendário'),
+              onTap: () {
+                Navigator.pushNamed(context, '/calendar'); 
+              },
+            ),
+            const Divider(),
+            ListTile(
+              title: const Text('Logout'),
+              leading: const Icon(Icons.logout),
+              onTap: _logout, // Chama a função de logout
             ),
           ],
         ),
@@ -112,7 +131,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 labelText: 'Search',
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: _filterProducts,
+              onChanged: (query) {
+                setState(() {
+                  _filteredProducts = _products
+                      .where((product) => product.name
+                          .toLowerCase()
+                          .contains(query.toLowerCase()))
+                      .toList();
+                });
+              },
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -123,7 +150,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   return ListTile(
                     title: Text(product.name),
                     subtitle: Text(product.description),
-                    trailing: Text('\$${product.price.toStringAsFixed(2)}'),
+                    trailing: Text(
+                      '\$${product.price.toStringAsFixed(2)}',
+                    ),
                   );
                 },
               ),

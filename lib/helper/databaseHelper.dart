@@ -65,6 +65,16 @@ class DatabaseHelper {
         FOREIGN KEY (productId) REFERENCES products (id)
       )
     ''');
+    // Tabela de eventos
+    await db.execute('''
+      CREATE TABLE events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        date TEXT NOT NULL,
+        userId INTEGER NOT NULL
+      )
+    ''');
   }
 
   // Função para fechar o banco de dados

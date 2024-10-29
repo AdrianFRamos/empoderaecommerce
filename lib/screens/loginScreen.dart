@@ -60,27 +60,32 @@ class _LoginScreenState extends State<LoginScreen> {
               _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      bool success = await controller.loginUser();
-                      setState(() {
-                        _isLoading = false;
-                      });
-                      if (success) {
-                        Get.offAllNamed('/home'); 
-                      } else {
-                        Get.snackbar(
-                          'Login Failed', 
-                          'Invalid credentials',
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
+                    onPressed: () async {
+                      print('Botão de login pressionado'); 
+                      
+                      if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          _isLoading = true;
+                        });
+
+                        bool success = await controller.loginUser();
+
+                        setState(() {
+                          _isLoading = false;
+                        });
+
+                        if (success) {
+                          Get.offAllNamed('/home'); 
+                        } else {
+                          Get.snackbar(
+                            'Login Falhou',
+                            'Credenciais inválidas',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
                       }
-                    }
-                  },
-                  child: const Text('Login'),
+                    },
+                    child: const Text('Login'),
                 ),
               const SizedBox(height: 20),
               TextButton(

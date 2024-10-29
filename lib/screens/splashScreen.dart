@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,17 +13,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLogin();
+    _checkUserSession();
   }
 
-  Future<void> _checkLogin() async {
+  Future<void> _checkUserSession() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
     if (isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Get.offAllNamed('/home'); // Redireciona para home se logado
     } else {
-      Navigator.pushReplacementNamed(context, '/');
+      Get.offAllNamed('/login'); // Redireciona para login se não logado
     }
   }
 

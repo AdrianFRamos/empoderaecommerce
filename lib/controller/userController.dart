@@ -1,3 +1,4 @@
+import 'package:empoderaecommerce/const/hashedPassword.dart';
 import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:flutter/material.dart';
@@ -15,23 +16,40 @@ class UserController extends GetxController {
 
   // Inserir um novo usuário no banco de dados
   Future<int> insertUser(String name, String email, String password) async {
-    final db = await _database;
-    return await db.insert('users', {
-      'name': name,
-      'email': email,
-      'password': password,
-    });
+    final db = await DatabaseHelper.instance.database;
+    final hashedPassword = hashPassword(password);
+
+    try {
+      return await db.insert('users', {
+        'name': name,
+        'email': email,
+        'password': hashedPassword,
+      });
+    } catch (e) {
+      if (e is DatabaseException && e.isUniqueConstraintError('users.email')) {
+        throw Exception('Email already registered');
+      } else {
+        rethrow; // Lança outras exceções
+      }
+    }
   }
 
+
   // Atualizar um usuário existente
-  Future<int> updateUser(User user) async {
-    final db = await _database;
-    return await db.update(
-      'users',
-      user.toMap(),
-      where: 'id = ?',
-      whereArgs: [user.id],
-    );
+  static Future<bool> updateUser(User user) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final rowsUpdated = await db.update(
+        'users',
+        user.toMap(),
+        where: 'id = ?',
+        whereArgs: [user.id],
+      );
+      return rowsUpdated > 0;
+    } catch (e) {
+      print('Erro ao atualizar usuário: $e');
+      return false;
+    }
   }
 
   // Deletar um usuário pelo ID

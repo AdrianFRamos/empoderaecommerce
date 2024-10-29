@@ -77,34 +77,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
-      // Obtém os valores dos controladores
       final name = controller.nameController.text;
       final email = controller.emailController.text;
       final password = controller.passwordController.text;
 
       try {
-        final usercontroller = UserController();
-        final userId = await usercontroller.insertUser(name, email, password);
+        // Usando controlador GetX já inicializado
+        final userId = await controller.insertUser(name, email, password);
 
         if (userId != 0) {
-          // Login automático após o registro bem-sucedido
-          final logincontroller = LoginController();
-          final user = await logincontroller.getUserByEmailAndPassword(email, password);
-          if (user != null) {
+          final loginController = Get.put(LoginController());
+          final user = await loginController.getUserByEmailAndPassword(email, password);
+
+          if (user != null && mounted) {
+            // Redireciona para a tela de home
             Navigator.pushReplacementNamed(context, '/home');
+          } else {
+            _showSnackbar('Login failed after registration.');
           }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration failed')),
-          );
+          _showSnackbar('Registration failed');
         }
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $error')),
-        );
+        _showSnackbar('Error: $error');
       }
     }
   }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
 
   @override
   void dispose() {
