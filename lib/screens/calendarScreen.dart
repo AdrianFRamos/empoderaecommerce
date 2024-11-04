@@ -14,7 +14,7 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  List<Event> _events = [];
+  List<Event> events = [];
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> _loadEvents() async {
     final userId = await _getUserId();
     if (userId != null && _selectedDay != null) {
-      _events = await EventController().getEventsByDate(_selectedDay!, userId);
+      events = await EventController().getEventsByDate(_selectedDay!, userId);
       setState(() {});
     }
   }

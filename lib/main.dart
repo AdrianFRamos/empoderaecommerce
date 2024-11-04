@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Your App',
+      title: 'Empodera Ecommerce',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

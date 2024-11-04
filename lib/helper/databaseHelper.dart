@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
-  static const String _databaseName = 'app_database.db';
+  static const String _databaseName = 'db.db';
   static const int _databaseVersion = 1;
 
   // Instância única da classe

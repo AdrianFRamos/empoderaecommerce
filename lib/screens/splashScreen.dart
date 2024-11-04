@@ -1,6 +1,5 @@
+import 'package:empoderaecommerce/controller/sessionController.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,18 +12,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkUserSession();
-  }
-
-  Future<void> _checkUserSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-    if (isLoggedIn) {
-      Get.offAllNamed('/home'); // Redireciona para home se logado
-    } else {
-      Get.offAllNamed('/login'); // Redireciona para login se não logado
-    }
+    Future.delayed(const Duration(seconds: 3)); 
+    checkUserSession();
   }
 
   @override

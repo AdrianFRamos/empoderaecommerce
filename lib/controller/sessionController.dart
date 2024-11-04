@@ -1,12 +1,24 @@
 import 'package:empoderaecommerce/models/userModel.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> saveUserSession(User user) async {
   final prefs = await SharedPreferences.getInstance();
   prefs.setBool('isLoggedIn', true);
-  prefs.setInt('userId', user.id!);
+  prefs.setInt('userId', user.id);
   prefs.setString('userName', user.name);
   prefs.setString('userEmail', user.email);
+}
+
+Future<void> checkUserSession() async {
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+  if (isLoggedIn) {
+    Get.offAllNamed('/home'); // Redireciona para home se logado
+  } else {
+    Get.offAllNamed('/login'); // Redireciona para login se não logado
+  }
 }
 
 class SaveUserSession {
