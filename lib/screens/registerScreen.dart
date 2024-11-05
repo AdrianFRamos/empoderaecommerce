@@ -13,8 +13,6 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final UserController controller = Get.put(UserController());
-  final TextEditingController _surnameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
 
   bool _acceptContact = false;
 
@@ -103,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: _surnameController,
+                  controller: controller.lastnameController,
                   decoration: const InputDecoration(
                     labelText: 'Sobrenome',
                     border: OutlineInputBorder(),
@@ -129,7 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: _phoneController,
+                  controller: controller.numberController,
                   decoration: const InputDecoration(
                     labelText: 'Telefone',
                     hintText: '55',
@@ -205,10 +203,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       final name = controller.nameController.text;
       final email = controller.emailController.text;
+      final lastname = controller.passwordController.text;
       final password = controller.passwordController.text;
+      final number = controller.passwordController.text;
 
       try {
-        final userId = await controller.insertUser(name, email, password);
+        final userId = await controller.insertUser(name, email, password, lastname, number);
 
         if (userId != 0) {
           final loginController = Get.put(LoginController());
@@ -239,8 +239,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     controller.nameController.dispose();
     controller.emailController.dispose();
     controller.passwordController.dispose();
-    _surnameController.dispose();
-    _phoneController.dispose();
+    controller.lastnameController.dispose();
+    controller.numberController.dispose();
     super.dispose();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:empoderaecommerce/const/hashedPassword.dart';
 import 'package:empoderaecommerce/helper/databaseHelper.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
@@ -9,21 +11,25 @@ class UserController extends GetxController {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController lastnameController = TextEditingController();
+  final TextEditingController numberController = TextEditingController();
   // Getter para acessar o banco de dados
   Future<Database> get _database async {
     return await DatabaseHelper.instance.database;
   }
 
   // Inserir um novo usuário no banco de dados
-  Future<int> insertUser(String name, String email, String password) async {
+  Future<int> insertUser(String name, String email, String lastname, String password, String number) async {
     final db = await DatabaseHelper.instance.database;
     final hashedPassword = hashPassword(password);
 
     try {
       return await db.insert('users', {
         'name': name,
+        'lastname': lastname,
         'email': email,
         'password': hashedPassword,
+        'number': number,
       });
     } catch (e) {
       if (e is DatabaseException && e.isUniqueConstraintError('users.email')) {
