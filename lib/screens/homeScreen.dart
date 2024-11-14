@@ -84,52 +84,35 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
+            // Header do usuário
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(color: Colors.yellow[700]),
+              accountName: Text(_user?.name ?? 'Usuário'),
+              accountEmail: const Text("Meu perfil >"),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  (_user?.name ?? "A")[0],
+                  style: TextStyle(fontSize: 24, color: Colors.black),
+                ),
               ),
-              child: Text('Menu'),
+              onDetailsPressed: () => Navigator.pushNamed(context, '/edit_profile'),
             ),
-            ListTile(
-              title: const Text('Profile'),
-              onTap: () {
-                if (_user != null) {
-                  Get.toNamed(
-                    '/edit_profile',
-                    arguments: _user,
-                  );
-                } else {
-                  Get.snackbar(
-                    'Erro',
-                    'Usuário não encontrado',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                }
-              },
-            ),
-            ListTile(
-              title: const Text('Manage Products'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageProductsScreen()));
-              },
-            ),
-            ListTile(
-              title: const Text('Cart'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const CartScreen()));
-              },
-            ),
-            ListTile(
-              title: const Text('Calendário'),
-              onTap: () {
-                Navigator.pushNamed(context, '/calendar');
-              },
-            ),
-            ListTile(
-              title: const Text('Logout'),
-              leading: const Icon(Icons.logout),
-              onTap: _logout,
-            ),
+            // Itens do menu
+            _buildDrawerItem(Icons.search, 'Buscar'),
+            _buildDrawerItem(Icons.notifications, 'Notificações', hasNotification: true),
+            _buildDrawerItem(Icons.shopping_bag, 'Minhas compras'),
+            _buildDrawerItem(Icons.favorite, 'Favoritos'),
+            _buildDrawerItem(Icons.local_offer, 'Ofertas do dia'),
+            _buildDrawerItem(Icons.card_giftcard, 'Cupons'),
+            _buildDrawerItem(Icons.attach_money, 'Empréstimos'),
+            _buildDrawerItem(Icons.shield, 'Seguros', isNew: true),
+            _buildDrawerItem(Icons.subscriptions, 'Assinaturas'),
+            _buildDrawerItem(Icons.calendar_today, 'Calendário', onTap: () {
+              Navigator.pushNamed(context, '/calendar');
+            }),
+            const Divider(),
+            _buildDrawerItem(Icons.logout, 'Logout', onTap: _logout),
           ],
         ),
       ),
@@ -149,19 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.pink,
-                borderRadius: BorderRadius.circular(8),
-                image: const DecorationImage(
-                  image: AssetImage('assets/banner.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
             const SizedBox(height: 20),
 
             // Categorias
@@ -175,13 +145,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildCategoryIcon('Moda', Icons.checkroom),
                   _buildCategoryIcon('Celulares', Icons.phone_android),
                   _buildCategoryIcon('Veículos', Icons.directions_car),
-                  // Adicione no banco
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // Promoções 
+            // Promoções
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -201,10 +170,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-
-            _buildProductList(),
-
             const SizedBox(height: 20),
 
             _buildProductList(),
@@ -291,6 +256,56 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+    );
+  }
+
+  // Função auxiliar para criar itens do drawer
+  Widget _buildDrawerItem(IconData icon, String title, {bool hasNotification = false, bool isNew = false, bool isFree = false, VoidCallback? onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.black54),
+      title: Row(
+        children: [
+          Text(title),
+          const SizedBox(width: 5),
+          if (hasNotification)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                '1',
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ),
+          if (isNew)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                'NOVO',
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ),
+          if (isFree)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                'GRÁTIS',
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ),
+        ],
+      ),
+      onTap: onTap,
     );
   }
 }
