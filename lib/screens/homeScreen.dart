@@ -29,22 +29,39 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadUser() async {
-    _user = await SaveUserSession.getUserFromSession();
-    setState(() {});
+    try {
+      _user = await SaveUserSession.getUserFromSession();
+      setState(() {});
+    } catch (e) {
+      Get.snackbar(
+        'Erro',
+        'Falha ao carregar o usuário: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   Future<void> _loadProducts() async {
-    final productcontroller = Productcontroller();
-    final products = await productcontroller.getProducts();
-    setState(() {
-      _products = products;
-      _filteredProducts = products;
-    });
+    try {
+      final productcontroller = Productcontroller();
+      final products = await productcontroller.getProducts();
+      setState(() {
+        _products = products;
+        _filteredProducts = products;
+      });
+    } catch (e) {
+      Get.snackbar(
+        'Erro',
+        'Falha ao carregar produtos: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   void _logout() {
     _loginController.emailController.clear();
     _loginController.passwordController.clear();
+    SaveUserSession.clearSession(); // Certifique-se de que esta função limpa a sessão.
     Get.offAllNamed('/login');
   }
 
@@ -84,30 +101,35 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            // Header do usuário
             UserAccountsDrawerHeader(
               decoration: BoxDecoration(color: Colors.yellow[700]),
               accountName: Text(_user?.name ?? 'Usuário'),
-              accountEmail: const Text("Meu perfil >"),
+              accountEmail: Text(_user?.email ?? 'email@exemplo.com'),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
                   (_user?.name ?? "A")[0],
-                  style: TextStyle(fontSize: 24, color: Colors.black),
+                  style: const TextStyle(fontSize: 24, color: Colors.black),
                 ),
               ),
-              onDetailsPressed: () => Navigator.pushNamed(context, '/edit_profile'),
+              onDetailsPressed: () {
+                if (_user != null) {
+                  Navigator.pushNamed(context, '/profile', arguments: _user);
+                } else {
+                  Get.snackbar(
+                    'Erro',
+                    'Nenhum usuário logado.',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                }
+              },
             ),
-            // Itens do menu
             _buildDrawerItem(Icons.search, 'Buscar'),
             _buildDrawerItem(Icons.notifications, 'Notificações', hasNotification: true),
             _buildDrawerItem(Icons.shopping_bag, 'Minhas compras'),
             _buildDrawerItem(Icons.favorite, 'Favoritos'),
             _buildDrawerItem(Icons.local_offer, 'Ofertas do dia'),
             _buildDrawerItem(Icons.card_giftcard, 'Cupons'),
-            _buildDrawerItem(Icons.attach_money, 'Empréstimos'),
-            _buildDrawerItem(Icons.shield, 'Seguros', isNew: true),
-            _buildDrawerItem(Icons.subscriptions, 'Assinaturas'),
             _buildDrawerItem(Icons.calendar_today, 'Calendário', onTap: () {
               Navigator.pushNamed(context, '/calendar');
             }),
@@ -124,54 +146,19 @@ class _HomeScreenState extends State<HomeScreen> {
             // Localização e Banner Principal
             Row(
               children: [
-                Icon(Icons.location_on, color: Colors.black54),
+                const Icon(Icons.location_on, color: Colors.black54),
                 const SizedBox(width: 5),
                 Text(
                   'Endereço',
-                  style: TextStyle(color: Colors.black54),
+                  style: const TextStyle(color: Colors.black54),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-
-            // Categorias
-            SizedBox(
-              height: 80,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildCategoryIcon('Supermercado', Icons.local_grocery_store),
-                  _buildCategoryIcon('Cupons', Icons.local_offer),
-                  _buildCategoryIcon('Moda', Icons.checkroom),
-                  _buildCategoryIcon('Celulares', Icons.phone_android),
-                  _buildCategoryIcon('Veículos', Icons.directions_car),
-                ],
-              ),
-            ),
+            _buildCategoryIcons(),
             const SizedBox(height: 20),
-
-            // Promoções
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.local_offer, color: Colors.white),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'OFERTAS DO DIA',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildPromotionsBanner(),
             const SizedBox(height: 20),
-
             _buildProductList(),
           ],
         ),
@@ -179,7 +166,22 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget para um ícone de categoria
+  Widget _buildCategoryIcons() {
+    return SizedBox(
+      height: 80,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _buildCategoryIcon('Supermercado', Icons.local_grocery_store),
+          _buildCategoryIcon('Cupons', Icons.local_offer),
+          _buildCategoryIcon('Moda', Icons.checkroom),
+          _buildCategoryIcon('Celulares', Icons.phone_android),
+          _buildCategoryIcon('Veículos', Icons.directions_car),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCategoryIcon(String label, IconData icon) {
     return Column(
       children: [
@@ -191,27 +193,49 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 5),
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.black54),
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
         ),
       ],
     );
   }
 
-  // Widget para a lista de produtos
+  Widget _buildPromotionsBanner() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.local_offer, color: Colors.white),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(
+              'OFERTAS DO DIA',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProductList() {
     return SizedBox(
       height: 150,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 5, // Número de produtos que você deseja mostrar
+        itemCount: _products.length,
         itemBuilder: (context, index) {
+          final product = _products[index];
           return Container(
             width: 120,
             margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 4,
@@ -226,8 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/product.png'), // Substitua pela imagem do produto
+                      image: DecorationImage(
+                        image: AssetImage('assets/product.png'), // Verifique o caminho da imagem
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -237,16 +261,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        'Nome do Produto',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        product.name,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'R\$ 99,90',
-                        style: TextStyle(fontSize: 12, color: Colors.green),
+                        'R\$ ${product.price.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 12, color: Colors.green),
                       ),
                     ],
                   ),
@@ -259,16 +283,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Função auxiliar para criar itens do drawer
-  Widget _buildDrawerItem(IconData icon, String title, {bool hasNotification = false, bool isNew = false, bool isFree = false, VoidCallback? onTap}) {
+  Widget _buildDrawerItem(IconData icon, String title,
+      {bool hasNotification = false, VoidCallback? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.black54),
       title: Row(
         children: [
           Text(title),
-          const SizedBox(width: 5),
           if (hasNotification)
             Container(
+              margin: const EdgeInsets.only(left: 8),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.red,
@@ -276,30 +300,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: const Text(
                 '1',
-                style: TextStyle(color: Colors.white, fontSize: 10),
-              ),
-            ),
-          if (isNew)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                'NOVO',
-                style: TextStyle(color: Colors.white, fontSize: 10),
-              ),
-            ),
-          if (isFree)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                'GRÁTIS',
                 style: TextStyle(color: Colors.white, fontSize: 10),
               ),
             ),

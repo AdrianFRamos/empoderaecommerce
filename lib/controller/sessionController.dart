@@ -33,4 +33,13 @@ class SaveUserSession {
     }
     return null; 
   }
+
+   static Future<void> clearSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('userName');
+    await prefs.remove('userEmail');
+  }
 }
+
+
