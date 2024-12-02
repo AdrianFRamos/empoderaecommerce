@@ -3,8 +3,10 @@ import 'package:empoderaecommerce/screens/addProductScreen.dart';
 import 'package:empoderaecommerce/screens/calendarScreen.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
 import 'package:empoderaecommerce/screens/checkoutScreen.dart';
+import 'package:empoderaecommerce/screens/editEnderecosScreen.dart';
 import 'package:empoderaecommerce/screens/editProductScreen.dart';
 import 'package:empoderaecommerce/screens/editProfileScreen.dart';
+import 'package:empoderaecommerce/screens/enderecosScreen.dart';
 import 'package:empoderaecommerce/screens/loginScreen.dart';
 import 'package:empoderaecommerce/screens/manageProductScreen.dart';
 import 'package:empoderaecommerce/screens/productDetailScreen.dart';
@@ -46,6 +48,8 @@ class MyApp extends StatelessWidget {
         '/edit_product': (context) => const EditProductScreen(),
         '/manage_products': (context) => const ManageProductsScreen(),
         '/edit_profile': (context) => const EditProfileScreen(),
+        '/enderecos': (context) => EnderecosScreen(),
+        '/edit_enderecos': (context) =>  EditEnderecosScreen(isEditing: false,),
         '/calendar': (context) => const CalendarScreen(),
       },
       onGenerateRoute: (settings) {

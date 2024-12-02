@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
-                  (_user?.name ?? "A")[0],
+                  (_user?.avatarUrl ?? "A")[0],
                   style: const TextStyle(fontSize: 24, color: Colors.black),
                 ),
               ),
@@ -125,11 +125,12 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             _buildDrawerItem(Icons.search, 'Buscar'),
-            _buildDrawerItem(Icons.notifications, 'Notificações', hasNotification: true),
             _buildDrawerItem(Icons.shopping_bag, 'Minhas compras'),
             _buildDrawerItem(Icons.favorite, 'Favoritos'),
             _buildDrawerItem(Icons.local_offer, 'Ofertas do dia'),
-            _buildDrawerItem(Icons.card_giftcard, 'Cupons'),
+            _buildDrawerItem(Icons.history, 'Historico'),
+            _buildDrawerItem(Icons.point_of_sale, 'Venda Voce'),
+            _buildDrawerItem(Icons.help, 'Ajuda'),
             _buildDrawerItem(Icons.calendar_today, 'Calendário', onTap: () {
               Navigator.pushNamed(context, '/calendar');
             }),
