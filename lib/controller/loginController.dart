@@ -1,5 +1,6 @@
 import 'package:empoderaecommerce/const/hashedPassword.dart';
 import 'package:empoderaecommerce/controller/sessionController.dart';
+import 'package:empoderaecommerce/middleware/google.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
@@ -47,6 +48,7 @@ class LoginController extends GetxController {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); 
+    logout_Google();
     Get.offAllNamed('/login'); 
   }
 }

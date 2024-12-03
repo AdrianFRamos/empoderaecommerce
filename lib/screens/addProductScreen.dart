@@ -13,6 +13,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _description = '';
+  String _category = '';
   String _price = '';
 
   @override
@@ -79,6 +80,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final product = Product(
       name: _name,
       description: _description,
+      category: _category,
       price: double.parse(_price),
     );
     await productcontroller.addProduct(product);

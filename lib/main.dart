@@ -15,11 +15,19 @@ import 'package:empoderaecommerce/screens/profileScreen.dart';
 import 'package:empoderaecommerce/screens/registerScreen.dart';
 import 'package:empoderaecommerce/screens/homeScreen.dart';
 import 'package:empoderaecommerce/screens/splashScreen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+    print('Firebase inicializado com sucesso!');
+  } catch (e) {
+    print('Erro ao inicializar o Firebase: $e');
+  }
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
   runApp(const MyApp());

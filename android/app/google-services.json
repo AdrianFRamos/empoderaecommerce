@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1043279220975",
+    "project_id": "empoderaecommerce-61397",
+    "storage_bucket": "empoderaecommerce-61397.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043279220975:android:bede75e237124f06d58b1a",
+        "android_client_info": {
+          "package_name": "com.example.empoderaecommerce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1043279220975-juvr1f289ptahpgolapak1lrdf6ufp43.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.empoderaecommerce",
+            "certificate_hash": "f8eae9422d596ca4f8c2bfa7b6f4d2016587058f"
+          }
+        },
+        {
+          "client_id": "1043279220975-mssftuhitvbpo4i0erod2fcoeqo7ph88.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFBSSAz-A73nizP2P8g85SICMgokqHzzA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1043279220975-mssftuhitvbpo4i0erod2fcoeqo7ph88.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

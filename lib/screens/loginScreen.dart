@@ -1,7 +1,11 @@
 //import 'package:empoderaecommerce/const/colors.dart';
 import 'package:empoderaecommerce/controller/loginController.dart';
+import 'package:empoderaecommerce/middleware/google.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -137,11 +141,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () {
-                  // Implementar lógica de login com o Google
-                },
+                onPressed: loginWithGoogle,
                 icon: Image.asset(
-                  'assets/icons/google.png', // Certifique-se de ter um ícone do Google em assets
+                  'assets/icons/google.png', 
                   height: 24,
                 ),
                 label: const Text('Fazer login com o Google'),

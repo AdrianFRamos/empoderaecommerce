@@ -93,6 +93,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       id: _product.id,
       name: _name,
       description: _description,
+      category: _product.category,
       price: double.parse(_price),
     );
     await productcontroller.updateProduct(product);

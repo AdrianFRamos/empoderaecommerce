@@ -3,9 +3,9 @@ import 'package:empoderaecommerce/controller/productController.dart';
 import 'package:empoderaecommerce/controller/sessionController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
-import 'package:empoderaecommerce/screens/manageProductScreen.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,12 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadProducts() async {
     try {
-      final productcontroller = Productcontroller();
-      final products = await productcontroller.getProducts();
+      //final productcontroller = Productcontroller();
+      //final products = await productcontroller.getProducts();
       setState(() {
         _products = products;
         _filteredProducts = products;
       });
+      print('Produtos carregados: ${_products.length}');
     } catch (e) {
       Get.snackbar(
         'Erro',
@@ -58,10 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
   void _logout() {
     _loginController.emailController.clear();
     _loginController.passwordController.clear();
-    SaveUserSession.clearSession(); // Certifique-se de que esta função limpa a sessão.
+    SaveUserSession.clearSession();
     Get.offAllNamed('/login');
   }
 
@@ -144,7 +146,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Localização e Banner Principal
             Row(
               children: [
                 const Icon(Icons.location_on, color: Colors.black54),
@@ -168,37 +169,45 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategoryIcons() {
-    return SizedBox(
-      height: 80,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildCategoryIcon('Supermercado', Icons.local_grocery_store),
-          _buildCategoryIcon('Cupons', Icons.local_offer),
-          _buildCategoryIcon('Moda', Icons.checkroom),
-          _buildCategoryIcon('Celulares', Icons.phone_android),
-          _buildCategoryIcon('Veículos', Icons.directions_car),
-        ],
-      ),
-    );
-  }
+  return SizedBox(
+    height: 100, 
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      physics: BouncingScrollPhysics(), 
+      itemCount: _categoryItems.length, 
+      itemBuilder: (context, index) {
+        final category = _categoryItems[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0), 
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 30, 
+                backgroundColor: Colors.grey.shade200, 
+                child: Icon(category['icon'], size: 30, color: Colors.blue),
+              ),
+              SizedBox(height: 5),
+              Text(
+                category['label'],
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+}
 
-  Widget _buildCategoryIcon(String label, IconData icon) {
-    return Column(
-      children: [
-        CircleAvatar(
-          backgroundColor: Colors.grey[300],
-          radius: 30,
-          child: Icon(icon, color: Colors.black),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.black54),
-        ),
-      ],
-    );
-  }
+final List<Map<String, dynamic>> _categoryItems = [
+  {'label': 'Mercado', 'icon': Icons.local_grocery_store},
+  {'label': 'Cupons', 'icon': Icons.local_offer},
+  {'label': 'Moda', 'icon': Icons.checkroom},
+  {'label': 'Celulares', 'icon': Icons.phone_android},
+  {'label': 'Veículos', 'icon': Icons.directions_car},
+  {'label': 'Compota', 'icon': FontAwesomeIcons.bottleWater,},
+];
 
   Widget _buildPromotionsBanner() {
     return Container(
@@ -223,6 +232,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProductList() {
+    if (_products.isEmpty) {
+      return const Center(
+        child: Text(
+          'Nenhum produto disponível',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
     return SizedBox(
       height: 150,
       child: ListView.builder(
@@ -252,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
                       image: DecorationImage(
-                        image: AssetImage('assets/product.png'), // Verifique o caminho da imagem
+                        image: AssetImage('assets/product.png'),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -283,6 +301,38 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
+  final List<Product> products = [
+    Product(
+      id: 1,
+      name: 'Produto 1',
+      description: 'Descrição do Produto 1',
+      category: 'Categoria 1',
+      price: 10.99,
+    ),
+    Product(
+      id: 2,
+      name: 'Produto 2',
+      description: 'Descrição do Produto 2',
+      category: 'Categoria 2',
+      price: 19.99,
+    ),
+    Product(
+      id: 3,
+      name: 'Produto 3',
+      description: 'Descrição do Produto 3',
+      category: 'Categoria 3',
+      price: 5.99,
+    ),
+    Product(
+      id: 4,
+      name: 'Produto 4',
+      description: 'Descrição do Produto 4',
+      category: 'Categoria 4',
+      price: 15.99,
+    ),
+  ];
 
   Widget _buildDrawerItem(IconData icon, String title,
       {bool hasNotification = false, VoidCallback? onTap}) {
