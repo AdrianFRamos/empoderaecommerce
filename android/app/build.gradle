@@ -1,8 +1,8 @@
 plugins {
-    id "com.android.application"
-    id "org.jetbrains.kotlin.android" version "1.9.0" apply false
-    id "dev.flutter.flutter-gradle-plugin" // Plugin do Flutter
-    id 'com.google.gms.google-services' // Último plugin para Firebase
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 def keystoreProperties = new Properties()
@@ -13,26 +13,25 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.empoderaecommerce"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 34 
+    ndkVersion = "23.1.7779620"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     defaultConfig {
         applicationId "com.example.empoderaecommerce"
         minSdk 23
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
     }
-
 
     signingConfigs {
         release {
@@ -47,21 +46,19 @@ android {
         release {
             minifyEnabled false
             shrinkResources false
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
         debug {
-            signingConfig signingConfigs.debug
+            //signingConfig signingConfigs.release
         }
     }
 }
 
-flutter {
-    source = "../.."
-}
-
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:33.6.0') // Firebase BOM
-    implementation 'com.google.firebase:firebase-analytics' // Firebase Analytics
-    implementation 'com.google.firebase:firebase-auth' // Firebase Auth (se necessário)
-    implementation 'com.google.firebase:firebase-firestore' // Firebase Firestore (se necessário)
+    implementation platform('com.google.firebase:firebase-bom:33.6.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
 }
