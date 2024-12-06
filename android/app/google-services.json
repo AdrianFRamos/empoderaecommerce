@@ -14,11 +14,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "1043279220975-juvr1f289ptahpgolapak1lrdf6ufp43.apps.googleusercontent.com",
+          "client_id": "1043279220975-5diep4uhim98p8uoin2bv6mrnoqvcha4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.empoderaecommerce",
-            "certificate_hash": "f8eae9422d596ca4f8c2bfa7b6f4d2016587058f"
+            "certificate_hash": "90aab6bebe035ebbede6d6eb157851c86bf85abd"
+          }
+        },
+        {
+          "client_id": "1043279220975-p407cqkekgmajece151fnre6q7qvhe0c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.empoderaecommerce",
+            "certificate_hash": "50943e6bcfed78592eb18a16629a42d2e8ed7c19"
           }
         },
         {

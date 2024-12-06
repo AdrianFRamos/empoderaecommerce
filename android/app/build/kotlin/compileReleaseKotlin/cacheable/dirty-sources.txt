@@ -1,1 +1,0 @@
-C:\Users\User\Desktop\Aplicativos_laphis\empoderaecommerce\android\app\src\main\kotlin\com\example\empoderaecommerce\MainActivity.kt

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 Future<void> loginWithGoogle() async {
@@ -7,6 +8,7 @@ Future<void> loginWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     if (googleUser == null) {
       // Login cancelado pelo usuário
+      print('Login com o Google cancelado pelo UsuarioS');
       return;
     }
 
@@ -26,6 +28,8 @@ Future<void> loginWithGoogle() async {
     User? user = userCredential.user;
     print('Usuário logado: ${user?.displayName}');
     print('Email: ${user?.email}');
+
+    Get.offAllNamed('/home');
   } catch (e) {
     print('Erro ao fazer login com o Google: $e');
   }
