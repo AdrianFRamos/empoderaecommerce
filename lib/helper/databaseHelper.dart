@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -23,16 +25,32 @@ class DatabaseHelper {
 
   // Inicializa e abre o banco de dados
   Future<Database> _initDatabase() async {
-    // Obtém o caminho do banco de dados
-    final dbPath = join(await getDatabasesPath(), _databaseName);
+    try {
+      // Caminho correto para o banco de dados no dispositivo
+      final databasePath = await getDatabasesPath();
+      final dbPath = join(databasePath, _databaseName);
 
-    // Abre o banco de dados
-    return await openDatabase(
-      dbPath,
-      version: _databaseVersion,
-      onCreate: _onCreate,
-    );
+      if (!await Directory(databasePath).exists()) {
+        await Directory(databasePath).create(recursive: true);
+      }
+
+      print('Database path: $dbPath');
+
+      return await openDatabase(
+        dbPath,
+        version: _databaseVersion,
+        onCreate: _onCreate,
+        onConfigure: (db) async {
+          // Ativar chaves estrangeiras
+          await db.execute('PRAGMA foreign_keys = ON;');
+        },
+      );
+    } catch (e) {
+      print('Erro ao abrir o banco de dados: $e');
+      rethrow;
+    }
   }
+
 
   // Método chamado na criação do banco de dados
   Future<void> _onCreate(Database db, int version) async {

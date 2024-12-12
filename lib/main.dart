@@ -18,6 +18,7 @@ import 'package:empoderaecommerce/screens/splashScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
@@ -30,6 +31,7 @@ void main() async {
   }
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
+  Sqflite.setDebugModeOn(true);
   runApp(const MyApp());
 }
 
