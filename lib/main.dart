@@ -58,7 +58,10 @@ class MyApp extends StatelessWidget {
         '/edit_product': (context) => const EditProductScreen(),
         '/manage_products': (context) => const ManageProductsScreen(),
         '/edit_profile': (context) => const EditProfileScreen(),
-        '/enderecos': (context) => EnderecosScreen(),
+        '/enderecos': (context) {
+          final userId = ModalRoute.of(context)!.settings.arguments as int;
+          return EnderecosScreen(userId: userId);
+        },
         '/edit_enderecos': (context) =>  EditEnderecosScreen(isEditing: false,),
         '/calendar': (context) => const CalendarScreen(),
       },

@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static const String _databaseName = 'db1.db';
@@ -11,14 +11,13 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._();
 
   // Database privado
-  static Database? _database;
+  Database? _database;
 
   // Construtor privado
   DatabaseHelper._();
 
   // Getter assíncrono para o banco de dados
   Future<Database> get database async {
-    // Retorna o banco de dados existente ou o inicializa
     _database ??= await _initDatabase();
     return _database!;
   }
@@ -26,13 +25,9 @@ class DatabaseHelper {
   // Inicializa e abre o banco de dados
   Future<Database> _initDatabase() async {
     try {
-      // Caminho correto para o banco de dados no dispositivo
-      final databasePath = await getDatabasesPath();
-      final dbPath = join(databasePath, _databaseName);
-
-      if (!await Directory(databasePath).exists()) {
-        await Directory(databasePath).create(recursive: true);
-      }
+      // Obtém o diretório de documentos do aplicativo (seguro para escrita)
+      final directory = await getApplicationDocumentsDirectory();
+      final dbPath = join(directory.path, _databaseName);
 
       print('Database path: $dbPath');
 
@@ -51,10 +46,8 @@ class DatabaseHelper {
     }
   }
 
-
   // Método chamado na criação do banco de dados
   Future<void> _onCreate(Database db, int version) async {
-    // Tabela de usuários
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,30 +55,47 @@ class DatabaseHelper {
         lastname TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
-        number INTEGER NOT NULL ,
+        number TEXT, -- Caso queira armazenar telefone do usuário
         avatarUrl TEXT
       )
     ''');
 
-    // Tabela de produtos
     await db.execute('''
-      CREATE TABLE products (
+      CREATE TABLE addresses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        description TEXT NOT NULL,
-        price REAL NOT NULL
+        userId INTEGER NOT NULL,
+        street TEXT NOT NULL,
+        number TEXT NOT NULL,
+        complement TEXT,
+        city TEXT NOT NULL,
+        state TEXT NOT NULL,
+        zipCode TEXT NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
       )
     ''');
 
-    // Tabela de carrinho
+    await db.execute('''
+      CREATE TABLE products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL, -- vendedor
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        price REAL NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+      )
+    ''');
+
     await db.execute('''
       CREATE TABLE cart (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL, -- comprador
         productId INTEGER NOT NULL,
-        FOREIGN KEY (productId) REFERENCES products (id)
+        quantity INTEGER NOT NULL DEFAULT 1,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY(productId) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE
       )
     ''');
-    // Tabela de eventos
+
     await db.execute('''
       CREATE TABLE events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,19 +1,24 @@
+import 'package:empoderaecommerce/controller/adressController.dart';
+import 'package:empoderaecommerce/models/adressModel.dart';
 import 'package:flutter/material.dart';
 
-class EnderecosScreen extends StatelessWidget {
-  final List<Map<String, String>> enderecos = [
-    {
-      'endereco': 'Rua Marechal Deodoro da Fonseca 1701 Bloco 3, AP 203',
-      'detalhes':
-          'CEP 84600906 - Paraná - União da Vitória\nAdrian Ferreira Ramos - 42998726282'
-    },
-    {
-      'endereco':
-          'Bairro Nossa Senhora Aparecida Rua Domícios Escaramello 73',
-      'detalhes':
-          'CEP 84640000 - Paraná - Bituruna\nAdrian Ramos - 42998005956'
-    },
-  ];
+class EnderecosScreen extends StatefulWidget {
+  final int userId;
+
+  EnderecosScreen({required this.userId});
+
+  @override
+  _EnderecosScreenState createState() => _EnderecosScreenState();
+}
+
+class _EnderecosScreenState extends State<EnderecosScreen> {
+  late Future<List<Address>> futureEnderecos;
+
+  @override
+  void initState() {
+    super.initState();
+    futureEnderecos = Adresscontroller().getAddressesByUserId(widget.userId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,45 +36,93 @@ class EnderecosScreen extends StatelessWidget {
           },
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(16.0),
-        children: [
-          Text(
-            'Endereços',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 16),
-          // Renderizar os endereços dinamicamente
-          for (var endereco in enderecos)
-            _buildEnderecoCard(
-              context,
-              endereco: endereco['endereco']!,
-              detalhes: endereco['detalhes']!,
-            ),
-          SizedBox(height: 16),
-          // Botão para adicionar novo endereço
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.pushNamed(context, '/edit_enderecos',
-                  arguments: {'isEditing': false});
-            },
-            icon: Icon(Icons.add),
-            label: Text('Adicionar endereço'),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.blue),
-              padding: EdgeInsets.all(16),
-            ),
-          ),
-        ],
+      body: FutureBuilder<List<Address>>(
+        future: futureEnderecos,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return ListView(
+              padding: EdgeInsets.all(16.0),
+              children: [
+                Text(
+                  'Endereços',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Nenhum endereço cadastrado.'),
+                SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    // Navega para adicionar endereço
+                    await Navigator.pushNamed(context, '/edit_enderecos',
+                        arguments: {'isEditing': false, 'userId': widget.userId});
+                    // Ao voltar, recarrega a lista
+                    setState(() {
+                      futureEnderecos = Adresscontroller().getAddressesByUserId(widget.userId);
+                    });
+                  },
+                  icon: Icon(Icons.add),
+                  label: Text('Adicionar endereço'),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.blue),
+                    padding: EdgeInsets.all(16),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          final enderecos = snapshot.data!;
+          return ListView(
+            padding: EdgeInsets.all(16.0),
+            children: [
+              Text(
+                'Endereços',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16),
+              for (var endereco in enderecos)
+                _buildEnderecoCard(
+                  context,
+                  endereco: '${endereco.street}, ${endereco.number}, ${endereco.city} - ${endereco.state}',
+                  detalhes: 'CEP ${endereco.zipCode}${endereco.complement.isNotEmpty ? ' - ${endereco.complement}' : ''}',
+                  addressId: endereco.id!,
+                ),
+              SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  // Navega para adicionar endereço
+                  await Navigator.pushNamed(context, '/edit_enderecos',
+                      arguments: {'isEditing': false, 'userId': widget.userId});
+                  // Ao voltar, recarrega a lista
+                  setState(() {
+                    futureEnderecos = Adresscontroller().getAddressesByUserId(widget.userId);
+                  });
+                },
+                icon: Icon(Icons.add),
+                label: Text('Adicionar endereço'),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.blue),
+                  padding: EdgeInsets.all(16),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildEnderecoCard(BuildContext context,
-      {required String endereco, required String detalhes}) {
+      {required String endereco, required String detalhes, required int addressId}) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -94,21 +147,24 @@ class EnderecosScreen extends StatelessWidget {
                   ),
                 ),
                 PopupMenuButton<String>(
-                  onSelected: (value) {
+                  onSelected: (value) async {
                     if (value == 'Editar') {
                       // Navegar para a tela de edição com dados do endereço
-                      Navigator.pushNamed(
+                      await Navigator.pushNamed(
                         context,
                         '/edit_enderecos',
                         arguments: {
                           'isEditing': true,
-                          'endereco': endereco,
-                          'detalhes': detalhes,
+                          'addressId': addressId,
+                          'userId': widget.userId
                         },
                       );
+                      // Ao voltar, recarrega a lista
+                      setState(() {
+                        futureEnderecos = Adresscontroller().getAddressesByUserId(widget.userId);
+                      });
                     } else if (value == 'Remover') {
-                      // Implementar lógica para remover endereço
-                      _removerEndereco(context, endereco);
+                      _removerEndereco(context, addressId);
                     }
                   },
                   itemBuilder: (BuildContext context) {
@@ -133,7 +189,7 @@ class EnderecosScreen extends StatelessWidget {
             SizedBox(height: 8),
             TextButton(
               onPressed: () {
-                // Implementar lógica para adicionar dados e horários
+                // Implementar lógica para adicionar dados e horários se necessário
               },
               child: Text(
                 'Adicionar dados e horários do lugar',
@@ -146,7 +202,7 @@ class EnderecosScreen extends StatelessWidget {
     );
   }
 
-  void _removerEndereco(BuildContext context, String endereco) {
+  void _removerEndereco(BuildContext context, int addressId) {
     // Exemplo de diálogo de confirmação
     showDialog(
       context: context,
@@ -162,10 +218,13 @@ class EnderecosScreen extends StatelessWidget {
               child: Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
-                // Lógica para remover endereço
+              onPressed: () async {
+                // Lógica para remover endereço do banco
+                await Adresscontroller().deleteAddress(addressId);
                 Navigator.of(context).pop();
-                print('Endereço removido: $endereco');
+                setState(() {
+                  futureEnderecos = Adresscontroller().getAddressesByUserId(widget.userId);
+                });
               },
               child: Text(
                 'Remover',

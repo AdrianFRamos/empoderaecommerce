@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:empoderaecommerce/controller/sessionController.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
@@ -107,9 +108,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ListTile(
             leading: Icon(Icons.location_on),
             title: Text('Endereços'),
-            onTap: () {
-              // Navegar para a tela de endereços
-              Navigator.pushNamed(context, '/enderecos');
+            onTap: () async {
+              // Obter o usuário da sessão
+              User? loggedUser = await SaveUserSession.getUserFromSession();
+
+              if (loggedUser != null) {
+                final userId = loggedUser.id;
+                Navigator.pushNamed(context, '/enderecos', arguments: userId);
+              } else {
+                // Se não há usuário logado, vá para login
+                Navigator.pushNamed(context, '/login');
+              }
             },
           ),
           ListTile(

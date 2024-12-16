@@ -49,6 +49,7 @@ dependencies:
   firebase_core: ^2.24.2
   sqlite3: ^2.5.0
   sqlite3_flutter_libs: ^0.5.27
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
