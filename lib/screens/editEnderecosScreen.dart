@@ -1,24 +1,22 @@
 import 'package:empoderaecommerce/controller/adressController.dart';
+import 'package:empoderaecommerce/controller/sessionController.dart';
 import 'package:empoderaecommerce/models/adressModel.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class EditEnderecosScreen extends StatefulWidget {
   final bool isEditing;
-  final Address? endereco;
-  final int? userId;
 
-  EditEnderecosScreen({
-    Key? key,
-    required this.isEditing,
-    this.endereco,
-    this.userId,
-  }) : super(key: key);
+  EditEnderecosScreen({Key? key, required this.isEditing}) : super(key: key);
 
   @override
   _EditEnderecosScreenState createState() => _EditEnderecosScreenState();
 }
 
 class _EditEnderecosScreenState extends State<EditEnderecosScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController cepController = TextEditingController();
   final TextEditingController estadoController = TextEditingController();
@@ -28,147 +26,186 @@ class _EditEnderecosScreenState extends State<EditEnderecosScreen> {
   final TextEditingController numeroController = TextEditingController();
   final TextEditingController complementoController = TextEditingController();
   final TextEditingController telefoneController = TextEditingController();
-  final TextEditingController infoAdicionalController = TextEditingController();
 
   bool semNumero = false;
+  int? _addressId;
+  bool _isLoading = true;
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.isEditing && widget.endereco != null) {
-      final e = widget.endereco!;
-      cepController.text = e.zipCode;
-      estadoController.text = e.state;
-      cidadeController.text = e.city;
-      ruaController.text = e.street;
-      numeroController.text = e.number == 'S/N' ? '' : e.number;
-      complementoController.text = e.complement;
-      // Caso queira armazenar telefone, bairro e outras infos, 
-      // inclua colunas no BD e ajuste aqui.
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _carregarDados();
+  }
+
+  void _carregarDados() async {
+    if (_isLoading) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+      if (args != null) {
+        final isEditing = args['isEditing'] ?? false;
+        final addressId = args['addressId'] as int?;
+
+        if (isEditing && addressId != null) {
+          final address = await Adresscontroller().getAddressById(addressId);
+          setState(() {
+            _addressId = addressId;
+            cepController.text = address?.zipCode ?? '';
+            estadoController.text = address?.state ?? '';
+            cidadeController.text = address?.city ?? '';
+            bairroController.text = address?.bairro ?? '';
+            ruaController.text = address?.street ?? '';
+            numeroController.text = address?.number == 'S/N' ? '' : address?.number ?? '';
+            complementoController.text = address?.complement ?? '';
+            telefoneController.text = address?.telefone ?? '';
+            _isLoading = false;
+          });
+        }
+      } else {
+        _isLoading = false;
+      }
     }
+  }
+
+  Future<void> _buscarEnderecoPeloCEP() async {
+    final cep = cepController.text.replaceAll(RegExp(r'\D'), '');
+    if (cep.length == 8) {
+      final url = Uri.parse('https://viacep.com.br/ws/$cep/json/');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          estadoController.text = data['uf'] ?? '';
+          cidadeController.text = data['localidade'] ?? '';
+          bairroController.text = data['bairro'] ?? '';
+          ruaController.text = data['logradouro'] ?? '';
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao buscar o CEP. Verifique o valor digitado.')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('CEP inválido. Digite um CEP com 8 dígitos.')),
+      );
+    }
+  }
+
+  void _salvarEndereco() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final user = await SaveUserSession.getUserFromSession();
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro: Usuário não está logado.')),
+        );
+        return;
+      }
+
+      final address = Address(
+        id: _addressId ?? 0,
+        userId: user.id,
+        street: ruaController.text.trim(),
+        number: semNumero ? 'S/N' : numeroController.text.trim(),
+        complement: complementoController.text.trim(),
+        city: cidadeController.text.trim(),
+        state: estadoController.text.trim(),
+        zipCode: cepController.text.trim(),
+        bairro: bairroController.text.trim(),
+        telefone: telefoneController.text.trim(),
+      );
+
+      try {
+        if (widget.isEditing) {
+          await Adresscontroller().updateAddress(address);
+        } else {
+          await Adresscontroller().insertAddress(address);
+        }
+        Navigator.pop(context, true);
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao salvar endereço: $error')),
+        );
+      }
+    }
+  }  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    IconData? icon,
+    String? hint,
+    TextInputType inputType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: inputType,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: icon != null ? Icon(icon) : null,
+          border: OutlineInputBorder(),
+        ),
+        validator: validator,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow,
+        backgroundColor: Colors.yellow[700],
         title: Text(
-          widget.isEditing ? 'Edite seu endereço' : 'Adicione um endereço',
+          widget.isEditing ? 'Editar Endereço' : 'Adicionar Endereço',
           style: TextStyle(color: Colors.black),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField("Nome completo", nomeController, hint: "Como no seu RG."),
-            _buildTextField("CEP", cepController, hint: "Não sei o meu CEP"),
-            _buildTextField("Estado", estadoController),
-            _buildTextField("Cidade", cidadeController),
-            _buildTextField("Bairro", bairroController),
-            _buildTextField("Rua/Avenida", ruaController, hint: "Informe o nome da rua."),
-            _buildNumberField(context),
-            _buildTextField("Complemento (opcional)", complementoController),
-            _buildTextField("Telefone de contato", telefoneController, hint: "Caso haja problema no envio."),
-            _buildTextField("Informações adicionais (opcional)", infoAdicionalController, maxLines: 3),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _salvarEndereco,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                minimumSize: Size(double.infinity, 50),
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildTextField("CEP", cepController, icon: Icons.map, inputType: TextInputType.number, validator: _validateCampoObrigatorio),
+              ElevatedButton(
+                onPressed: _buscarEnderecoPeloCEP,
+                child: const Text('Buscar pelo CEP'),
               ),
-              child: Text(
-                widget.isEditing ? 'Atualizar' : 'Salvar',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+              _buildTextField("Estado", estadoController, icon: Icons.location_city),
+              _buildTextField("Cidade", cidadeController, icon: Icons.apartment),
+              _buildTextField("Bairro", bairroController, icon: Icons.house),
+              _buildTextField("Rua", ruaController, icon: Icons.streetview, validator: _validateCampoObrigatorio),
+              _buildTextField("Número", numeroController, icon: Icons.confirmation_number, inputType: TextInputType.number, validator: _validateCampoObrigatorio),
+              _buildTextField("Complemento", complementoController, icon: Icons.add_location_alt),
+              _buildTextField("Telefone", telefoneController, icon: Icons.phone, inputType: TextInputType.phone),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _salvarEndereco,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: Text(widget.isEditing ? 'Atualizar' : 'Salvar'),
               ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              "Como cuidamos da sua privacidade",
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _salvarEndereco() {
-    final userId = widget.isEditing ? widget.endereco!.userId : widget.userId!;
-    final address = Address(
-      id: widget.isEditing ? widget.endereco!.id : null,
-      userId: userId,
-      street: ruaController.text,
-      number: semNumero ? 'S/N' : numeroController.text,
-      complement: complementoController.text,
-      city: cidadeController.text,
-      state: estadoController.text,
-      zipCode: cepController.text,
-    );
-
-    if (widget.isEditing) {
-      Adresscontroller().updateAddress(address).then((_) {
-        Navigator.pop(context, true);
-      });
-    } else {
-      Adresscontroller().insertAddress(address).then((_) {
-        Navigator.pop(context, true);
-      });
+  String? _validateCampoObrigatorio(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Este campo é obrigatório';
     }
-  }
-
-  Widget _buildNumberField(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildTextField("Número", numeroController),
-        ),
-        Checkbox(
-          value: semNumero,
-          onChanged: (value) {
-            setState(() {
-              semNumero = value ?? false;
-              if (semNumero) {
-                numeroController.text = '';
-              }
-            });
-          },
-        ),
-        Text("Sem número"),
-      ],
-    );
-  }
-
-  Widget _buildTextField(String label, TextEditingController controller,
-      {String? hint, int maxLines = 1}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 4),
-        TextField(
-          controller: controller,
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            hintText: hint,
-            border: OutlineInputBorder(),
-          ),
-        ),
-        SizedBox(height: 16),
-      ],
-    );
+    return null;
   }
 }

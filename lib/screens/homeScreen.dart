@@ -31,8 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadUser() async {
     try {
       _user = await SaveUserSession.getUserFromSession();
+      print('Usuário carregado da sessão: $_user');
       setState(() {});
     } catch (e) {
+      print('Erro ao carregar sessão: $e');
       Get.snackbar(
         'Erro',
         'Falha ao carregar o usuário: $e',
@@ -131,7 +133,9 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildDrawerItem(Icons.favorite, 'Favoritos'),
             _buildDrawerItem(Icons.local_offer, 'Ofertas do dia'),
             _buildDrawerItem(Icons.history, 'Historico'),
-            _buildDrawerItem(Icons.point_of_sale, 'Venda Voce'),
+            _buildDrawerItem(Icons.point_of_sale, 'Venda Voce', onTap: () {
+              Navigator.pushNamed(context, '/venda_voce');
+            }),
             _buildDrawerItem(Icons.help, 'Ajuda'),
             _buildDrawerItem(Icons.calendar_today, 'Calendário', onTap: () {
               Navigator.pushNamed(context, '/calendar');

@@ -6,6 +6,8 @@ class Address {
   final String city;
   final String state;
   final String zipCode;
+  final String bairro;        // Novo campo: Bairro
+  final String telefone;      // Novo campo: Telefone
   final String complement;
 
   Address({
@@ -16,9 +18,12 @@ class Address {
     required this.city,
     required this.state,
     required this.zipCode,
+    this.bairro = '',
+    this.telefone = '',
     this.complement = '',
   });
 
+  // Converte um objeto Address para Map (para salvar no banco de dados)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -28,10 +33,13 @@ class Address {
       'city': city,
       'state': state,
       'zipCode': zipCode,
+      'bairro': bairro,
+      'telefone': telefone,
       'complement': complement,
     };
   }
 
+  // Converte um Map para um objeto Address (para recuperar do banco)
   static Address fromMap(Map<String, dynamic> map) {
     return Address(
       id: map['id'],
@@ -41,6 +49,8 @@ class Address {
       city: map['city'],
       state: map['state'],
       zipCode: map['zipCode'],
+      bairro: map['bairro'] ?? '',
+      telefone: map['telefone'] ?? '',
       complement: map['complement'] ?? '',
     );
   }

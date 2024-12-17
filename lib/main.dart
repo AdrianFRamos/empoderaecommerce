@@ -2,6 +2,7 @@ import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:empoderaecommerce/screens/addProductScreen.dart';
 import 'package:empoderaecommerce/screens/calendarScreen.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
+import 'package:empoderaecommerce/screens/categoriesScreen.dart';
 import 'package:empoderaecommerce/screens/checkoutScreen.dart';
 import 'package:empoderaecommerce/screens/editEnderecosScreen.dart';
 import 'package:empoderaecommerce/screens/editProductScreen.dart';
@@ -63,6 +64,7 @@ class MyApp extends StatelessWidget {
           return EnderecosScreen(userId: userId);
         },
         '/edit_enderecos': (context) =>  EditEnderecosScreen(isEditing: false,),
+        '/venda_voce': (context) => const CategoriesScreen(),
         '/calendar': (context) => const CalendarScreen(),
       },
       onGenerateRoute: (settings) {

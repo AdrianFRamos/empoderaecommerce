@@ -19,9 +19,28 @@ class Adresscontroller extends GetxController {
     return maps.map((map) => Address.fromMap(map)).toList();
   }
 
-  Future<int> insertAddress(Address address) async {
-    final db = await database;
-    return await db.insert('addresses', address.toMap());
+  Future<Address?> getAddressById(int id) async {
+    final db = await DatabaseHelper.instance.database;
+    final result = await db.query(
+      'addresses',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      return Address.fromMap(result.first);
+    }
+    return null;
+  }
+
+  Future<void> insertAddress(Address address) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.insert(
+      'addresses',
+      address.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    print('Endereço inserido com sucesso no banco!');
   }
 
   Future<int> updateAddress(Address address) async {

@@ -13,35 +13,60 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String _name, _email, _password;
+
+  late String _name, _lastname, _email, _password, _phoneNumber;
   User? _user;
+
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserFromSession(); // Carrega o usuário da sessão ativa
+    _loadUserFromSession();
   }
 
   Future<void> _loadUserFromSession() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId');
-    final userName = prefs.getString('userName');
-    final userEmail = prefs.getString('userEmail');
 
-    if (userId != null && userName != null && userEmail != null) {
-      setState(() {
-        _user = User(id: userId, name: userName, email: userEmail, password: '');
-        _name = userName;
-        _email = userEmail;
-        _password = ''; // Inicializa a senha com uma string vazia
-      });
+    if (userId != null) {
+      try {
+        // Buscar o usuário completo no banco de dados
+        final user = await UserController.getUserById(userId);
+
+        if (user != null) {
+          setState(() {
+            _user = user;
+            _name = user.name;
+            _lastname = user.lastname;
+            _email = user.email;
+            _password = ''; // A senha não deve ser carregada do banco por segurança
+            _phoneNumber = user.number;
+            _isLoading = false;
+          });
+        } else {
+          Get.snackbar(
+            'Erro',
+            'Usuário não encontrado.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          Get.offAllNamed('/login');
+        }
+      } catch (e) {
+        Get.snackbar(
+          'Erro',
+          'Falha ao carregar usuário: $e',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        Get.offAllNamed('/login');
+      }
     } else {
       Get.snackbar(
         'Erro',
         'Nenhum usuário logado encontrado.',
         snackPosition: SnackPosition.BOTTOM,
       );
-      Get.offAllNamed('/login'); // Redireciona para a tela de login
+      Get.offAllNamed('/login');
     }
   }
 
@@ -56,6 +81,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             name: _name,
             email: _email,
             password: _password,
+            number: _phoneNumber,
+            lastname: _lastname,
           ),
         );
 
@@ -65,7 +92,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             'Perfil atualizado com sucesso!',
             snackPosition: SnackPosition.BOTTOM,
           );
-          Get.back(); // Volta para a tela anterior
+          Get.back();
         } else {
           Get.snackbar(
             'Erro',
@@ -83,66 +110,131 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  Widget _buildTextField({
+    required String label,
+    required String initialValue,
+    required IconData icon,
+    required Function(String?) onSaved,
+    String? Function(String?)? validator,
+    bool obscureText = false,
+    TextInputType inputType = TextInputType.text,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        initialValue: initialValue,
+        onSaved: onSaved,
+        obscureText: obscureText,
+        keyboardType: inputType,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Perfil'),
+        backgroundColor: Colors.yellow[700],
+        title: const Text(
+          'Editar Perfil',
+          style: TextStyle(color: Colors.black),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: _user == null
-            ? const Center(child: CircularProgressIndicator())
-            : Form(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'Nome'),
+                    _buildTextField(
+                      label: 'Nome',
                       initialValue: _name,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira um nome';
-                        }
-                        return null;
-                      },
+                      icon: Icons.person,
                       onSaved: (value) => _name = value!,
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Insira seu nome' : null,
                     ),
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'E-mail'),
+                    _buildTextField(
+                      label: 'Sobrenome',
+                      initialValue: _lastname,
+                      icon: Icons.person_outline,
+                      onSaved: (value) => _lastname = value!,
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Insira seu sobrenome' : null,
+                    ),
+                    _buildTextField(
+                      label: 'E-mail',
                       initialValue: _email,
+                      icon: Icons.email,
+                      inputType: TextInputType.emailAddress,
+                      onSaved: (value) => _email = value!,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, insira um e-mail';
+                          return 'Insira seu e-mail';
                         } else if (!GetUtils.isEmail(value)) {
-                          return 'Formato de e-mail inválido';
+                          return 'E-mail inválido';
                         }
                         return null;
                       },
-                      onSaved: (value) => _email = value!,
                     ),
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'Senha'),
+                    _buildTextField(
+                      label: 'Senha',
+                      initialValue: '',
+                      icon: Icons.lock,
                       obscureText: true,
+                      onSaved: (value) => _password = value!,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, insira uma senha';
+                          return 'Insira uma senha';
                         } else if (value.length < 6) {
                           return 'A senha deve ter pelo menos 6 caracteres';
                         }
                         return null;
                       },
-                      onSaved: (value) => _password = value!,
+                    ),
+                    _buildTextField(
+                      label: 'Telefone',
+                      initialValue: _phoneNumber,
+                      icon: Icons.phone,
+                      inputType: TextInputType.phone,
+                      onSaved: (value) => _phoneNumber = value!,
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Insira seu telefone' : null,
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: _updateUser,
-                      child: const Text('Atualizar Perfil'),
+                      icon: const Icon(Icons.save, color: Colors.white),
+                      label: const Text(
+                        'Atualizar Perfil',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-      ),
+            ),
     );
   }
 }

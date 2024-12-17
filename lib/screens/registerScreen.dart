@@ -1,4 +1,6 @@
+import 'package:empoderaecommerce/const/hashedPassword.dart';
 import 'package:empoderaecommerce/controller/loginController.dart';
+import 'package:empoderaecommerce/controller/sessionController.dart';
 import 'package:empoderaecommerce/controller/userController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -201,20 +203,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
-      final name = controller.nameController.text;
-      final email = controller.emailController.text;
-      final lastname = controller.passwordController.text;
-      final password = controller.passwordController.text;
-      final number = controller.passwordController.text;
+      final name = controller.nameController.text.trim();
+      final email = controller.emailController.text.trim().toLowerCase();
+      final lastname = controller.lastnameController.text.trim();
+      final password = controller.passwordController.text.trim();
+      final number = controller.numberController.text.trim();
 
       try {
-        final userId = await controller.insertUser(name, email, password, lastname, number);
+        final email = controller.emailController.text.trim().toLowerCase();
+        final hashedPassword = hashPassword(password.trim());
+        final userId = await controller.insertUser(name, email, lastname, hashedPassword, number);
 
         if (userId != 0) {
           final loginController = Get.put(LoginController());
-          final user = await loginController.getUserByEmailAndPassword(email, password);
+          final user = await loginController.getUserByEmailAndPassword(email, hashedPassword);
+
+          //print('User retornado: $user');
+          //print('Mounted: $mounted');
+          //print('Email usado: $email');
+          //print('Password usado: $password');
 
           if (user != null && mounted) {
+            await SaveUserSession.saveUserSession(user);
+            print('Usuário logado e sessão salva: ${user.toMap()}');
             Navigator.pushReplacementNamed(context, '/home');
           } else {
             _showSnackbar('Falha no login após o registro.');

@@ -23,7 +23,8 @@ class LoginController extends GetxController {
 
     final user = await getUserByEmailAndPassword(email, hashedPassword);
     if (user != null) {
-      await saveUserSession(user); 
+      await SaveUserSession.saveUserSession(user);
+      print('Usuário logado e sessão salva: ${user.toMap()}');
       return true;
     } else {
       return false;
@@ -33,17 +34,25 @@ class LoginController extends GetxController {
   Future<User?> getUserByEmailAndPassword(String email, String password) async {
     final db = await database;
 
+    //print('Email buscado no banco: $email');
+    //print('Senha buscada no banco (hash): $password');
+
     final maps = await db.query(
       'users',
       where: 'email = ? AND password = ?',
       whereArgs: [email, password],
     );
 
+    //print('Resultado da query: $maps');
+
     if (maps.isNotEmpty) {
       return User.fromMap(maps.first);
+    } else {
+      print('Nenhum usuário encontrado.');
+      return null;
     }
-    return null;
   }
+
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();

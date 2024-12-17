@@ -149,7 +149,6 @@ class _EnderecosScreenState extends State<EnderecosScreen> {
                 PopupMenuButton<String>(
                   onSelected: (value) async {
                     if (value == 'Editar') {
-                      // Navegar para a tela de edição com dados do endereço
                       await Navigator.pushNamed(
                         context,
                         '/edit_enderecos',
@@ -159,7 +158,6 @@ class _EnderecosScreenState extends State<EnderecosScreen> {
                           'userId': widget.userId
                         },
                       );
-                      // Ao voltar, recarrega a lista
                       setState(() {
                         futureEnderecos = Adresscontroller().getAddressesByUserId(widget.userId);
                       });

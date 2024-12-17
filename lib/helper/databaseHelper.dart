@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
-  static const String _databaseName = 'db1.db';
+  static const String _databaseName = 'db.db';
   static const int _databaseVersion = 1;
 
   // Instância única da classe
@@ -66,9 +66,11 @@ class DatabaseHelper {
         userId INTEGER NOT NULL,
         street TEXT NOT NULL,
         number TEXT NOT NULL,
+        bairro TEXT NOT NULL,
         complement TEXT,
         city TEXT NOT NULL,
         state TEXT NOT NULL,
+        telefone TEXT NOT NULL,
         zipCode TEXT NOT NULL,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
       )

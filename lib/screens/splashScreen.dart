@@ -1,5 +1,5 @@
-import 'package:empoderaecommerce/controller/sessionController.dart';
 import 'package:flutter/material.dart';
+import 'package:empoderaecommerce/controller/sessionController.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,13 +12,15 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3)); 
-    checkUserSession();
+    // Delay de 3 segundos antes de checar a sessão
+    Future.delayed(const Duration(seconds: 3), () {
+      SaveUserSession.checkUserSession(); // Chama a função após o delay
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: CircularProgressIndicator(),
       ),
