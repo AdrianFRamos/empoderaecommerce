@@ -26,9 +26,9 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     // Simulação: em um cenário real, carregue do banco
     await Future.delayed(const Duration(seconds: 1));
     final products = [
-      Product(id: 1, name: 'Produto 1', category: widget.category, price: 49.99),
-      Product(id: 2, name: 'Produto 2', category: widget.category, price: 29.99),
-      Product(id: 3, name: 'Produto 3', category: widget.category, price: 99.99),
+      Product(id: 1, name: 'Produto 1', category: widget.category, price: '49.99', description: '', stock: ''),
+      Product(id: 2, name: 'Produto 2', category: widget.category, price: '29.99', description: '', stock: ''),
+      Product(id: 3, name: 'Produto 3', category: widget.category, price: '99.99', description: '', stock: ''),
     ];
 
     setState(() {
@@ -98,7 +98,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'R\$ ${product.price.toStringAsFixed(2)}',
+                  'R\$ ${product.price}',
                   style: const TextStyle(
                       color: Colors.green, fontWeight: FontWeight.bold),
                 ),
@@ -109,7 +109,6 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
       ),
     );
   }
-
   Widget _buildProductGrid() {
     if (_filteredProducts.isEmpty) {
       return Center(

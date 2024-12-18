@@ -134,7 +134,10 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildDrawerItem(Icons.local_offer, 'Ofertas do dia'),
             _buildDrawerItem(Icons.history, 'Historico'),
             _buildDrawerItem(Icons.point_of_sale, 'Venda Voce', onTap: () {
-              Navigator.pushNamed(context, '/venda_voce');
+              Navigator.pushNamed(context, '/categories');
+            }),
+            _buildDrawerItem(Icons.point_of_sale, 'Anuncios', onTap: () {
+              Navigator.pushNamed(context, '/publish');
             }),
             _buildDrawerItem(Icons.help, 'Ajuda'),
             _buildDrawerItem(Icons.calendar_today, 'Calendário', onTap: () {
@@ -292,7 +295,7 @@ final List<Map<String, dynamic>> _categoryItems = [
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'R\$ ${product.price.toStringAsFixed(2)}',
+                        'R\$ ${product.price}',
                         style: const TextStyle(fontSize: 12, color: Colors.green),
                       ),
                     ],
@@ -306,38 +309,40 @@ final List<Map<String, dynamic>> _categoryItems = [
     );
   }
 
-
   final List<Product> products = [
     Product(
       id: 1,
       name: 'Produto 1',
       description: 'Descrição do Produto 1',
       category: 'Categoria 1',
-      price: 10.99,
+      price: '10.99', 
+      stock: '1',
     ),
     Product(
       id: 2,
       name: 'Produto 2',
       description: 'Descrição do Produto 2',
       category: 'Categoria 2',
-      price: 19.99,
+      price: '19.99',
+      stock: '1',
     ),
     Product(
       id: 3,
       name: 'Produto 3',
       description: 'Descrição do Produto 3',
       category: 'Categoria 3',
-      price: 5.99,
+      price: '5.99',
+      stock: '1',
     ),
     Product(
       id: 4,
       name: 'Produto 4',
       description: 'Descrição do Produto 4',
       category: 'Categoria 4',
-      price: 15.99,
+      price: '15.99',
+      stock: '1',
     ),
   ];
-
   Widget _buildDrawerItem(IconData icon, String title,
       {bool hasNotification = false, VoidCallback? onTap}) {
     return ListTile(

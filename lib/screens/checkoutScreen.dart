@@ -24,13 +24,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     var cart = await cartcontroller.getCart();
     double total = 0;
     for (Product product in cart) {
-      total += product.price;
+      total += double.parse(product.price);
     }
     setState(() {
       _total = total;
     });
   }
-
   Future<void> _processPayment() async {
     // Process payment
     // Update order status in database

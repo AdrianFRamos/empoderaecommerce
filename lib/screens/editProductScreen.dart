@@ -11,73 +11,83 @@ class EditProductScreen extends StatefulWidget {
 
 class _EditProductScreenState extends State<EditProductScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String _name, _description, _price;
+
+  late String _name, _description, _price, _stock;
   late Product _product;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Recebe o produto passado como argumento
     _product = ModalRoute.of(context)!.settings.arguments as Product;
+
+    // Preenche os campos com os valores existentes do produto
     _name = _product.name;
     _description = _product.description;
     _price = _product.price.toString();
+    _stock = _product.stock ?? '0'; // Garante que o estoque não seja nulo
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Product'),
+        backgroundColor: Colors.yellow[700],
+        title: const Text(
+          'Editar Produto',
+          style: TextStyle(color: Colors.black),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Name'),
+              _buildTextField(
+                label: 'Nome do Produto',
                 initialValue: _name,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
-                  }
-                  return null;
-                },
                 onSaved: (value) => _name = value!,
               ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Description'),
+              _buildTextField(
+                label: 'Descrição',
                 initialValue: _description,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
                 onSaved: (value) => _description = value!,
               ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Price'),
+              _buildTextField(
+                label: 'Preço',
                 initialValue: _price,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a price';
-                  }
-                  return null;
-                },
+                inputType: TextInputType.number,
                 onSaved: (value) => _price = value!,
+                validator: (value) => _validateNumericField(value, 'Preço'),
+              ),
+              _buildTextField(
+                label: 'Estoque',
+                initialValue: _stock,
+                inputType: TextInputType.number,
+                onSaved: (value) => _stock = value!,
+                validator: (value) => _validateNumericField(value, 'Estoque'),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    // Update product in database
-                    _updateProduct();
-                  }
-                },
-                child: const Text('Update Product'),
+              ElevatedButton.icon(
+                onPressed: _validateAndSave,
+                icon: const Icon(Icons.save, color: Colors.white),
+                label: const Text(
+                  'Atualizar Produto',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
               ),
             ],
           ),
@@ -86,18 +96,71 @@ class _EditProductScreenState extends State<EditProductScreen> {
     );
   }
 
-  Future<void> _updateProduct() async {
-    // Update product in database
-    final productcontroller = Productcontroller();
-    final product = Product(
-      id: _product.id,
-      name: _name,
-      description: _description,
-      category: _product.category,
-      price: double.parse(_price),
+  Widget _buildTextField({
+    required String label,
+    required String initialValue,
+    required Function(String?) onSaved,
+    TextInputType inputType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        keyboardType: inputType,
+        initialValue: initialValue,
+        validator: validator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return 'O campo $label é obrigatório';
+              }
+              return null;
+            },
+        onSaved: onSaved,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
     );
-    await productcontroller.updateProduct(product);
-    // Navigate to products screen
-    Navigator.pushNamed(context, '/products');
+  }
+
+  String? _validateNumericField(String? value, String fieldName) {
+    if (value == null || value.isEmpty) {
+      return 'O campo $fieldName é obrigatório';
+    } else if (double.tryParse(value) == null) {
+      return 'O campo $fieldName deve ser um número válido';
+    }
+    return null;
+  }
+
+  void _validateAndSave() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      _updateProduct();
+    }
+  }
+
+  Future<void> _updateProduct() async {
+    try {
+      final productController = Productcontroller();
+      final updatedProduct = Product(
+        id: _product.id,
+        name: _name,
+        description: _description,
+        category: _product.category,
+        price: _price,
+        stock: _stock,
+      );
+
+      await productController.updateProduct(updatedProduct);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Produto atualizado com sucesso!')),
+      );
+      Navigator.pushNamed(context, '/products');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao atualizar produto: $e')),
+      );
+    }
   }
 }

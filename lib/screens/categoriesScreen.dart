@@ -18,49 +18,51 @@ class CategoriesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Colors.yellow,
         title: const Text(
           'Selecione uma Categoria',
           style: TextStyle(color: Colors.black),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: GridView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.2,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 3 / 2,
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
+
+          // Verificação para garantir que label e icon não sejam nulos
+          final label = category['label'] as String? ?? 'Categoria';
+          final icon = category['icon'] as IconData? ?? Icons.category;
+
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/add_product',
-                  arguments: {'category': category['label']});
+              // Use a chave correta e garanta que o valor não seja nulo
+              Navigator.pushNamed(context, '/search_product', arguments: label);
             },
             child: Card(
-              elevation: 4,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(8),
               ),
+              elevation: 4,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(category['icon'], size: 50, color: Colors.blue),
+                  Icon(icon, size: 48, color: Colors.blue),
                   const SizedBox(height: 8),
                   Text(
-                    category['label'],
-                    textAlign: TextAlign.center,
+                    label,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

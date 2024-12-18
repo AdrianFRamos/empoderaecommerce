@@ -1,20 +1,27 @@
 import 'package:empoderaecommerce/models/userModel.dart';
+import 'package:empoderaecommerce/screens/DeliveryOptionsScreen.dart';
+import 'package:empoderaecommerce/screens/ProductConfirmationScreen.dart';
+import 'package:empoderaecommerce/screens/ProductPriceStockScreen.dart';
+import 'package:empoderaecommerce/screens/SearchProductScreen.dart';
 import 'package:empoderaecommerce/screens/addProductScreen.dart';
 import 'package:empoderaecommerce/screens/calendarScreen.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
 import 'package:empoderaecommerce/screens/categoriesScreen.dart';
 import 'package:empoderaecommerce/screens/checkoutScreen.dart';
+import 'package:empoderaecommerce/screens/confirmAdScreen.dart';
 import 'package:empoderaecommerce/screens/editEnderecosScreen.dart';
 import 'package:empoderaecommerce/screens/editProductScreen.dart';
 import 'package:empoderaecommerce/screens/editProfileScreen.dart';
 import 'package:empoderaecommerce/screens/enderecosScreen.dart';
 import 'package:empoderaecommerce/screens/loginScreen.dart';
 import 'package:empoderaecommerce/screens/manageProductScreen.dart';
+import 'package:empoderaecommerce/screens/myproductScreen.dart';
 import 'package:empoderaecommerce/screens/productDetailScreen.dart';
 import 'package:empoderaecommerce/screens/productScreen.dart';
 import 'package:empoderaecommerce/screens/profileScreen.dart';
 import 'package:empoderaecommerce/screens/registerScreen.dart';
 import 'package:empoderaecommerce/screens/homeScreen.dart';
+import 'package:empoderaecommerce/screens/searchresultsScreen.dart';
 import 'package:empoderaecommerce/screens/splashScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +71,35 @@ class MyApp extends StatelessWidget {
           return EnderecosScreen(userId: userId);
         },
         '/edit_enderecos': (context) =>  EditEnderecosScreen(isEditing: false,),
-        '/venda_voce': (context) => const CategoriesScreen(),
+        '/categories': (context) => CategoriesScreen(),
+        '/search_product': (context) {
+          final category = ModalRoute.of(context)!.settings.arguments as String;
+          return SearchProductScreen(category: category);
+        },
+        '/search_results': (context) {
+          final category = ModalRoute.of(context)!.settings.arguments as String;
+          return SearchResultsScreen(category: category);
+        },
+        '/product_confirmation': (context) {
+          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return ProductConfirmationScreen(product: product);
+        },
+        '/product_price_stock': (context) {
+          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return ProductPriceStockScreen(product: product);
+        },
+        '/delivery_options': (context) {
+          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return DeliveryOptionsScreen(product: product);
+        },
+        '/confirm_ad': (context) {
+          final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return ConfirmAdScreen(
+            product: arguments['product'],
+            deliveryOptions: arguments['deliveryOptions'],
+          );
+        },
+        '/my_products': (context) => const MyProductsScreen(),
         '/calendar': (context) => const CalendarScreen(),
       },
       onGenerateRoute: (settings) {
