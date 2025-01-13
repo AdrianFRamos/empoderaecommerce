@@ -39,7 +39,8 @@ class CategoriesScreen extends StatelessWidget {
 
           // Verificação para garantir que label e icon não sejam nulos
           final label = category['label'] as String? ?? 'Categoria';
-          final icon = category['icon'] as IconData? ?? Icons.category;
+          final icon = category['icon'] as IconData? ?? Icons.category;  
+          
 
           return GestureDetector(
             onTap: () {
