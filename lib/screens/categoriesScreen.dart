@@ -12,6 +12,7 @@ class CategoriesScreen extends StatelessWidget {
     {'label': 'Livros', 'icon': Icons.book},
     {'label': 'Alimentos', 'icon': Icons.fastfood},
     {'label': 'Brinquedos', 'icon': Icons.toys},
+    {'label': 'Servicos', 'icon': Icons.handyman},
   ];
 
   @override
@@ -40,8 +41,7 @@ class CategoriesScreen extends StatelessWidget {
           // Verificação para garantir que label e icon não sejam nulos
           final label = category['label'] as String? ?? 'Categoria';
           final icon = category['icon'] as IconData? ?? Icons.category;  
-          
-
+      
           return GestureDetector(
             onTap: () {
               // Use a chave correta e garanta que o valor não seja nulo
