@@ -18,6 +18,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   String _category = '';
   String _price = '';
   String _stock = '';
+  String _userId = '';
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +133,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       name: _name,
       description: _description,
       category: _category,
+      userId: _userId ,
       stock: _stock,
       price: _price,
     );

@@ -5,8 +5,9 @@ class Product {
   final String name;
   final String description;
   final String price;
-  final String stock;
+  final int stock;
   final String category;
+  final int userId;
 
   Product({
     required this.id,
@@ -15,6 +16,7 @@ class Product {
     required this.price,
     required this.stock,
     required this.category,
+    required this.userId
   });
 
   Map<String, dynamic> toMap() {
@@ -25,6 +27,7 @@ class Product {
       'price': price,
       'stock': stock,
       'category': category,
+      'userId': userId,
     };
     if (id != null) {
       map['id'] = id!;
@@ -38,7 +41,8 @@ class Product {
       name: map['name'] ?? 'Produto sem nome',
       description: map['description'] ?? 'Sem descrição',
       price: map['price']?.toString() ?? '0.0',
-      stock: map['stock']?.toString() ?? '0',
+      stock: map['stock'] ?? '0',
+      userId: map['userId'] ?? '0',
       category: map['category'] ?? 'Sem categoria',
     );
   }

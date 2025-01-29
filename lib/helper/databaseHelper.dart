@@ -83,8 +83,8 @@ class DatabaseHelper {
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         price REAL NOT NULL,
-        description REAL NOT NULL,
         stock REAL NOT NULL,
+        category REAL NOT NULL,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
       )
     ''');
