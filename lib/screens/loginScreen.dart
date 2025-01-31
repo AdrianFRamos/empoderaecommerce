@@ -1,11 +1,6 @@
-//import 'package:empoderaecommerce/const/colors.dart';
-import 'package:empoderaecommerce/controller/loginController.dart';
-import 'package:empoderaecommerce/middleware/google.dart';
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final LoginController controller = Get.put(LoginController());
+  final AuthController controller = Get.put(AuthController());
 
   bool _isLoading = false;
 
@@ -88,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             _isLoading = true;
                           });
 
-                          bool success = await controller.loginUser();
+                          bool success = await controller.loginWithEmailAndPassword();
 
                           setState(() {
                             _isLoading = false;
@@ -98,8 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             Get.offAllNamed('/home');
                           } else {
                             Get.snackbar(
-                              'Login Falhou',
-                              'Credenciais inválidas',
+                              'Erro no Login',
+                              'E-mail ou senha incorretos',
+                              backgroundColor: Colors.red.withOpacity(0.8),
+                              colorText: Colors.white,
                               snackPosition: SnackPosition.BOTTOM,
                             );
                           }
@@ -141,9 +138,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: loginWithGoogle,
+                onPressed: () => controller.loginWithGoogle(), // ✅ Corrigido
                 icon: Image.asset(
-                  'assets/icons/google.png', 
+                  'assets/icons/google.png',
                   height: 24,
                 ),
                 label: const Text('Fazer login com o Google'),

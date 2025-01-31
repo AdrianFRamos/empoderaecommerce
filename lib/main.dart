@@ -104,7 +104,7 @@ class MyApp extends StatelessWidget {
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/profile') {
-          final user = settings.arguments as User;
+          final user = settings.arguments as UserModel;
           return MaterialPageRoute(
             builder: (context) {
               return ProfileScreen(user: user);

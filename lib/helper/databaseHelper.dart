@@ -51,19 +51,21 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        firebaseUid TEXT, 
         name TEXT NOT NULL,
-        lastname TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
-        number TEXT, -- Caso queira armazenar telefone do usuário
-        avatarUrl TEXT
+        password TEXT,
+        isGoogleUser INTEGER NOT NULL,
+        avatarUrl TEXT,
+        number TEXT,
+        lastname TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE addresses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER NOT NULL,
+        userId TEXT NOT NULL,
         street TEXT NOT NULL,
         number TEXT NOT NULL,
         bairro TEXT NOT NULL,
@@ -83,7 +85,7 @@ class DatabaseHelper {
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         price REAL NOT NULL,
-        stock REAL NOT NULL,
+        stock INTEGER NOT NULL,
         category REAL NOT NULL,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
       )

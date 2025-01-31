@@ -1,5 +1,7 @@
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:empoderaecommerce/controller/productController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
+import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:flutter/material.dart';
 
 class AddProductScreen extends StatefulWidget {
@@ -12,13 +14,11 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Variáveis para armazenar os dados do formulário
   String _name = '';
   String _description = '';
   String _category = '';
-  String _price = '';
-  String _stock = '';
-  String _userId = '';
+  double _price = 0.0;
+  int _stock = 0;  
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _buildTextField(
                   label: 'Preço',
                   inputType: TextInputType.number,
-                  onSaved: (value) => _price = value!,
+                  onSaved: (value) => _price = double.parse(value!),
                   validator: (value) => value == null || value.isEmpty
                       ? 'Por favor, insira o preço'
                       : null,
@@ -74,7 +74,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _buildTextField(
                   label: 'Estoque',
                   inputType: TextInputType.number,
-                  onSaved: (value) => _stock = value!,
+                  onSaved: (value) => _stock = int.parse(value!),
                   validator: (value) => value == null || value.isEmpty
                       ? 'Por favor, insira o estoque'
                       : null,
@@ -127,15 +127,27 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Future<void> _addProduct() async {
-    final productController = Productcontroller();
+    final productController = ProductController();
+
+    // Recuperar o userId da sessão
+    final authController = AuthController();
+    UserModel? user = await authController.getUserFromSession();
+
+    if (user == null || user.id == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro: Usuário não autenticado')),
+      );
+      return;
+    }
+
     final product = Product(
-      id: 0, // ID gerado automaticamente
+      id: 0, 
       name: _name,
       description: _description,
       category: _category,
-      userId: _userId ,
-      stock: _stock,
-      price: _price,
+      userId: user.id ?? 0, 
+      stock: _stock,  
+      price: _price, 
     );
 
     try {

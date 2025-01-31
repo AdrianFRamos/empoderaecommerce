@@ -48,7 +48,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Future<void> _addToCart(Product product) async {
     // Add product to cart
     final cartcontroller = CartController();
-    await cartcontroller.addProductToCart(product.id!);
+    await cartcontroller.addProductToCart(product.id);
     // Navigate to cart screen
     Navigator.pushNamed(context, '/cart');
   }

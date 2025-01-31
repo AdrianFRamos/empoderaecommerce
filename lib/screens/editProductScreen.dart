@@ -1,5 +1,7 @@
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:empoderaecommerce/controller/productController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
+import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:flutter/material.dart';
 
 class EditProductScreen extends StatefulWidget {
@@ -12,7 +14,9 @@ class EditProductScreen extends StatefulWidget {
 class _EditProductScreenState extends State<EditProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late String _name, _description, _price, _stock;
+  late String _name, _description;
+  late double _price;
+  late int _stock;
   late Product _product;
 
   @override
@@ -24,8 +28,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
     // Preenche os campos com os valores existentes do produto
     _name = _product.name;
     _description = _product.description;
-    _price = _product.price.toString();
-    _stock = _product.stock ?? '0'; // Garante que o estoque não seja nulo
+    _price = _product.price;
+    _stock = _product.stock;
   }
 
   @override
@@ -61,16 +65,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
               ),
               _buildTextField(
                 label: 'Preço',
-                initialValue: _price,
+                initialValue: _price.toString(),  // Corrigido para string
                 inputType: TextInputType.number,
-                onSaved: (value) => _price = value!,
+                onSaved: (value) => _price = double.parse(value!),
                 validator: (value) => _validateNumericField(value, 'Preço'),
               ),
               _buildTextField(
                 label: 'Estoque',
-                initialValue: _stock,
+                initialValue: _stock.toString(),  // Corrigido para string
                 inputType: TextInputType.number,
-                onSaved: (value) => _stock = value!,
+                onSaved: (value) => _stock = int.parse(value!),
                 validator: (value) => _validateNumericField(value, 'Estoque'),
               ),
               const SizedBox(height: 20),
@@ -142,7 +146,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   Future<void> _updateProduct() async {
     try {
-      final productController = Productcontroller();
+      final productController = ProductController();
+
+      // Recuperar userId do usuário logado
+      UserModel? user = await AuthController().getUserFromSession();
+      if (user == null || user.id == 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro: Usuário não autenticado')),
+        );
+        return;
+      }
+
       final updatedProduct = Product(
         id: _product.id,
         name: _name,
@@ -150,6 +164,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         category: _product.category,
         price: _price,
         stock: _stock,
+        userId: user.id,  // Corrigido para usar userId do usuário logado
       );
 
       await productController.updateProduct(updatedProduct);

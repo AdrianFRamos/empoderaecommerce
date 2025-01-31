@@ -3,7 +3,7 @@ import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:get/get.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-class Productcontroller extends GetxController {
+class ProductController extends GetxController {
   Future<Database> get database async {
     return await DatabaseHelper.instance.database;
   }

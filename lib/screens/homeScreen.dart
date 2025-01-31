@@ -1,6 +1,4 @@
-import 'package:empoderaecommerce/controller/loginController.dart';
-import 'package:empoderaecommerce/controller/productController.dart';
-import 'package:empoderaecommerce/controller/sessionController.dart';
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
@@ -16,10 +14,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final LoginController _loginController = Get.put(LoginController());
+  final AuthController _authController = Get.put(AuthController());
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
-  User? _user;
+  UserModel? _user;
 
   @override
   void initState() {
@@ -30,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadUser() async {
     try {
-      _user = await SaveUserSession.getUserFromSession();
+      _user = await _authController.getUserFromSession();
       print('Usuário carregado da sessão: $_user');
       setState(() {});
     } catch (e) {
@@ -63,9 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void _logout() {
-    _loginController.emailController.clear();
-    _loginController.passwordController.clear();
-    SaveUserSession.clearSession();
+    _authController.emailController.clear();
+    _authController.passwordController.clear();
+    _authController.clearSession();
     Get.offAllNamed('/login');
   }
 
@@ -315,32 +313,36 @@ final List<Map<String, dynamic>> _categoryItems = [
       name: 'Produto 1',
       description: 'Descrição do Produto 1',
       category: 'Categoria 1',
-      price: '10.99', 
-      stock: '1',
+      price: 10.99, 
+      stock: 1,
+      userId: 0
     ),
     Product(
       id: 2,
       name: 'Produto 2',
       description: 'Descrição do Produto 2',
       category: 'Categoria 2',
-      price: '19.99',
-      stock: '1',
+      price: 19.99,
+      stock: 1,
+      userId: 0
     ),
     Product(
       id: 3,
       name: 'Produto 3',
       description: 'Descrição do Produto 3',
       category: 'Categoria 3',
-      price: '5.99',
-      stock: '1',
+      price: 5.99,
+      stock: 1,
+      userId: 0
     ),
     Product(
       id: 4,
       name: 'Produto 4',
       description: 'Descrição do Produto 4',
       category: 'Categoria 4',
-      price: '15.99',
-      stock: '1',
+      price: 15.99,
+      stock: 1,
+      userId: 0
     ),
   ];
   Widget _buildDrawerItem(IconData icon, String title,

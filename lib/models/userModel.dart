@@ -1,45 +1,51 @@
-class User {
-  final int id;
+class UserModel {
+  final int? id; 
+  final String? firebaseUid; 
   final String name;
   final String email;
-  final String password;
+  final String? password;
+  final bool isGoogleUser;
   final String? avatarUrl;
-  final String lastname; // Novo campo
-  final String number;   // Novo campo
+  final String? number;
+  final String? lastname;
 
-  User({
-    required this.id,
+  UserModel({
+    this.id,
+    this.firebaseUid, 
     required this.name,
     required this.email,
-    required this.password,
+    this.password,
+    required this.isGoogleUser,
     this.avatarUrl,
-    this.lastname = '',
-    this.number = '',
+    this.number,
+    this.lastname,
   });
 
-  // Converte o objeto User para Map (para inserção no banco)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'firebaseUid': firebaseUid,
       'name': name,
       'email': email,
       'password': password,
+      'isGoogleUser': isGoogleUser ? 1 : 0,
       'avatarUrl': avatarUrl,
-      'lastname': lastname,
       'number': number,
+      'lastname': lastname,
     };
   }
 
-  // Cria um objeto User a partir de um Map (para leitura do banco)
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['id'] ?? 0,
-      name: map['name'] ?? '',
-      email: map['email'] ?? '',
-      password: map['password'] ?? '',
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      id: map['id'],
+      firebaseUid: map['firebaseUid'], 
+      name: map['name'],
+      email: map['email'],
+      password: map['password'],
+      isGoogleUser: map['isGoogleUser'] == 1,
       avatarUrl: map['avatarUrl'],
-      lastname: map['lastname'] ?? '',
-      number: map['number'] ?? '',
+      number: map['number'],
+      lastname: map['lastname'],
     );
   }
 }

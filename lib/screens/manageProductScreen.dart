@@ -20,7 +20,7 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
 
   Future<void> _loadProducts() async {
     // Load products from database
-    final productcontroller = Productcontroller();
+    final productcontroller = ProductController();
     _products = await productcontroller.getProducts();
     setState(() {});
   }
@@ -71,8 +71,8 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
 
   Future<void> _deleteProduct(Product product) async {
     // Delete product from database
-    final productcontroller = Productcontroller();
-    await productcontroller.deleteProduct(product.id!);
+    final productcontroller = ProductController();
+    await productcontroller.deleteProduct(product.id);
     _loadProducts();
   }
 }

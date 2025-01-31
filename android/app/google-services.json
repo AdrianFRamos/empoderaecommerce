@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "1043279220975-lllq4equlan718ptgduosl14l28lr6p4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.empoderaecommerce",
+            "certificate_hash": "88329be14da78a2c75dc0a63c5cc18fca6d55b3e"
+          }
+        },
+        {
           "client_id": "1043279220975-p407cqkekgmajece151fnre6q7qvhe0c.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

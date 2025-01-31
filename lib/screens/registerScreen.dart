@@ -1,7 +1,6 @@
 import 'package:empoderaecommerce/const/hashedPassword.dart';
-import 'package:empoderaecommerce/controller/loginController.dart';
-import 'package:empoderaecommerce/controller/sessionController.dart';
 import 'package:empoderaecommerce/controller/userController.dart';
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,6 +14,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final UserController controller = Get.put(UserController());
+  final AuthController authController = Get.put(AuthController());
 
   bool _acceptContact = false;
 
@@ -156,32 +156,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Ao clicar em "Continuar", aceito os Termos e condições e autorizo o uso dos meus dados de acordo com a Declaração de privacidade.',
-                  style: TextStyle(fontSize: 12),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.info, color: Colors.blue),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Ao continuar, vamos te enviar um código para validar seu celular.',
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _registerUser,
                   style: ElevatedButton.styleFrom(
@@ -210,21 +184,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final number = controller.numberController.text.trim();
 
       try {
-        final email = controller.emailController.text.trim().toLowerCase();
         final hashedPassword = hashPassword(password.trim());
-        final userId = await controller.insertUser(name, email, lastname, hashedPassword, number);
+        final success = await controller.insertUser(name, email, lastname, hashedPassword, number);
 
-        if (userId != 0) {
-          final loginController = Get.put(LoginController());
-          final user = await loginController.getUserByEmailAndPassword(email, hashedPassword);
-
-          //print('User retornado: $user');
-          //print('Mounted: $mounted');
-          //print('Email usado: $email');
-          //print('Password usado: $password');
+        if (success > 0) { 
+          final user = await authController.getUserByEmail(email);
 
           if (user != null && mounted) {
-            await SaveUserSession.saveUserSession(user);
+            await authController.saveUserSession(user);
             print('Usuário logado e sessão salva: ${user.toMap()}');
             Navigator.pushReplacementNamed(context, '/home');
           } else {

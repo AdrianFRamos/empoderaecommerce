@@ -1,12 +1,13 @@
 import 'dart:io';
-import 'package:empoderaecommerce/controller/sessionController.dart';
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final User user;
+  final UserModel user;
 
   const ProfileScreen({super.key, required this.user});
 
@@ -15,7 +16,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late User _user;
+  final AuthController _authController = Get.put(AuthController());
+  late UserModel _user;
   File? _avatarImage;
 
   @override
@@ -67,16 +69,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               children: [
                 GestureDetector(
-                  onTap: _pickAvatar, // Escolher avatar ao tocar
+                  onTap: _pickAvatar,
                   child: CircleAvatar(
                     radius: 50,
                     backgroundImage: _avatarImage != null
                         ? FileImage(_avatarImage!)
-                        : _user.avatarUrl?.isNotEmpty == true
+                        : (_user.avatarUrl != null && _user.avatarUrl!.isNotEmpty
                             ? NetworkImage(_user.avatarUrl!) as ImageProvider
-                            : null,
+                            : null),
                     child: _avatarImage == null &&
-                            (_user.avatarUrl?.isEmpty ?? true)
+                            (_user.avatarUrl == null || _user.avatarUrl!.isEmpty)
                         ? const Icon(Icons.person, size: 50)
                         : null,
                   ),
@@ -98,19 +100,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(),
           // Itens do menu
           ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Dados pessoais'),
+            leading: const Icon(Icons.person),
+            title: const Text('Dados pessoais'),
             onTap: () {
               // Navegar para a tela de dados pessoais
               Navigator.pushNamed(context, '/edit_profile');
             },
           ),
           ListTile(
-            leading: Icon(Icons.location_on),
-            title: Text('Endereços'),
+            leading: const Icon(Icons.location_on),
+            title: const Text('Endereços'),
             onTap: () async {
-              // Obter o usuário da sessão
-              User? loggedUser = await SaveUserSession.getUserFromSession();
+              // Obter o usuário da sessão CORRETAMENTE
+              UserModel? loggedUser = await _authController.getUserFromSession();
 
               if (loggedUser != null) {
                 final userId = loggedUser.id;
@@ -122,8 +124,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.privacy_tip),
-            title: Text('Privacidade'),
+            leading: const Icon(Icons.privacy_tip),
+            title: const Text('Privacidade'),
             onTap: () {
               // Navegar para a tela de privacidade
               Navigator.pushNamed(context, '/privacidade');
@@ -140,8 +142,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               // Função de logout
+              await _authController.logout();
               Navigator.pushNamedAndRemoveUntil(
                   context, '/login', (route) => false);
             },

@@ -1,5 +1,5 @@
 import 'package:empoderaecommerce/controller/adressController.dart';
-import 'package:empoderaecommerce/controller/sessionController.dart';
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:empoderaecommerce/models/adressModel.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -94,7 +94,7 @@ class _EditEnderecosScreenState extends State<EditEnderecosScreen> {
 
   void _salvarEndereco() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final user = await SaveUserSession.getUserFromSession();
+      final user = await AuthController().getUserFromSession();
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro: Usuário não está logado.')),

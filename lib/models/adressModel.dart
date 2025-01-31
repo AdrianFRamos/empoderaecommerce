@@ -1,13 +1,13 @@
 class Address {
   final int? id;
-  final int userId;
+  final int? userId;
   final String street;
   final String number;
   final String city;
   final String state;
   final String zipCode;
-  final String bairro;        // Novo campo: Bairro
-  final String telefone;      // Novo campo: Telefone
+  final String bairro;       
+  final String telefone;      
   final String complement;
 
   Address({
@@ -23,7 +23,6 @@ class Address {
     this.complement = '',
   });
 
-  // Converte um objeto Address para Map (para salvar no banco de dados)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -39,7 +38,6 @@ class Address {
     };
   }
 
-  // Converte um Map para um objeto Address (para recuperar do banco)
   static Address fromMap(Map<String, dynamic> map) {
     return Address(
       id: map['id'],

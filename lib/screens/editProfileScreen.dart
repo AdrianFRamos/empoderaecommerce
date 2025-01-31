@@ -15,7 +15,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late String _name, _lastname, _email, _password, _phoneNumber;
-  User? _user;
+  UserModel? _user;
 
   bool _isLoading = true;
 
@@ -27,7 +27,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _loadUserFromSession() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId');
+    final userId = prefs.getInt('userId'); // 🔹 Corrigido para String
 
     if (userId != null) {
       try {
@@ -38,34 +38,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           setState(() {
             _user = user;
             _name = user.name;
-            _lastname = user.lastname;
+            _lastname = user.lastname ?? '';
             _email = user.email;
-            _password = ''; // A senha não deve ser carregada do banco por segurança
-            _phoneNumber = user.number;
+            _password = ''; 
+            _phoneNumber = user.number ?? '';
             _isLoading = false;
           });
         } else {
-          Get.snackbar(
-            'Erro',
-            'Usuário não encontrado.',
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          Get.snackbar('Erro', 'Usuário não encontrado.', snackPosition: SnackPosition.BOTTOM);
           Get.offAllNamed('/login');
         }
       } catch (e) {
-        Get.snackbar(
-          'Erro',
-          'Falha ao carregar usuário: $e',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar('Erro', 'Falha ao carregar usuário: $e', snackPosition: SnackPosition.BOTTOM);
         Get.offAllNamed('/login');
       }
     } else {
-      Get.snackbar(
-        'Erro',
-        'Nenhum usuário logado encontrado.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Erro', 'Nenhum usuário logado encontrado.', snackPosition: SnackPosition.BOTTOM);
       Get.offAllNamed('/login');
     }
   }
@@ -74,39 +62,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      setState(() {
+        _isLoading = true;
+      });
+
       try {
         final success = await UserController.updateUser(
-          User(
+          UserModel(
             id: _user!.id,
             name: _name,
             email: _email,
-            password: _password,
+            password: _password.isNotEmpty ? _password : _user!.password, // 🔹 Mantém a senha antiga se não for alterada
             number: _phoneNumber,
             lastname: _lastname,
+            isGoogleUser: _user!.isGoogleUser, // 🔹 Mantém o status do Google Login
+            avatarUrl: _user!.avatarUrl, // 🔹 Mantém a foto de perfil
           ),
         );
 
         if (success) {
-          Get.snackbar(
-            'Sucesso',
-            'Perfil atualizado com sucesso!',
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          Get.snackbar('Sucesso', 'Perfil atualizado com sucesso!', snackPosition: SnackPosition.BOTTOM);
           Get.back();
         } else {
-          Get.snackbar(
-            'Erro',
-            'Não foi possível atualizar o perfil.',
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          Get.snackbar('Erro', 'Não foi possível atualizar o perfil.', snackPosition: SnackPosition.BOTTOM);
         }
       } catch (e) {
-        Get.snackbar(
-          'Erro',
-          'Ocorreu um erro: $e',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar('Erro', 'Ocorreu um erro: $e', snackPosition: SnackPosition.BOTTOM);
       }
+
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -130,9 +116,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
         ),
       ),
     );
@@ -165,16 +149,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       initialValue: _name,
                       icon: Icons.person,
                       onSaved: (value) => _name = value!,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Insira seu nome' : null,
+                      validator: (value) => value == null || value.isEmpty ? 'Insira seu nome' : null,
                     ),
                     _buildTextField(
                       label: 'Sobrenome',
                       initialValue: _lastname,
                       icon: Icons.person_outline,
                       onSaved: (value) => _lastname = value!,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Insira seu sobrenome' : null,
+                      validator: (value) => value == null || value.isEmpty ? 'Insira seu sobrenome' : null,
                     ),
                     _buildTextField(
                       label: 'E-mail',
@@ -192,15 +174,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       },
                     ),
                     _buildTextField(
-                      label: 'Senha',
+                      label: 'Nova Senha',
                       initialValue: '',
                       icon: Icons.lock,
                       obscureText: true,
                       onSaved: (value) => _password = value!,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Insira uma senha';
-                        } else if (value.length < 6) {
+                        if (value != null && value.isNotEmpty && value.length < 6) {
                           return 'A senha deve ter pelo menos 6 caracteres';
                         }
                         return null;
@@ -212,12 +192,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       icon: Icons.phone,
                       inputType: TextInputType.phone,
                       onSaved: (value) => _phoneNumber = value!,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Insira seu telefone' : null,
+                      validator: (value) => value == null || value.isEmpty ? 'Insira seu telefone' : null,
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: _updateUser,
+                      onPressed: _isLoading ? null : _updateUser,
                       icon: const Icon(Icons.save, color: Colors.white),
                       label: const Text(
                         'Atualizar Perfil',
@@ -226,9 +205,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                       ),
                     ),
                   ],

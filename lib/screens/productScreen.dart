@@ -20,7 +20,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
   Future<void> _loadProducts() async {
     // Load products from database
-    final productcontroller = Productcontroller();
+    final productcontroller = ProductController();
     _products = await productcontroller.getProducts();
     setState(() {});
   }

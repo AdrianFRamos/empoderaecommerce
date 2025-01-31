@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:empoderaecommerce/controller/productController.dart';
 
 class MyProductsScreen extends StatefulWidget {
   const MyProductsScreen({Key? key}) : super(key: key);
@@ -51,7 +50,6 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                     subtitle: Text('Preço: R\$ ${product['price']} • Estoque: ${product['stock']}'),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
-                      // Detalhes do produto, se necessário
                     },
                   ),
                 );

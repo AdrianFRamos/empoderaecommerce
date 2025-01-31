@@ -20,12 +20,6 @@ class UserController extends GetxController {
     final db = await DatabaseHelper.instance.database;
 
     try {
-      //print('Inserindo no banco:');
-      //print('Nome: $name');
-      //print('Email: $email');
-      //print('Senha (hash): $password');
-      //print('Sobrenome: $lastname');
-      //print('Número: $number');
       return await db.insert('users', {
         'name': name,
         'lastname': lastname,
@@ -43,7 +37,7 @@ class UserController extends GetxController {
     }
   }
 
-  static Future<User?> getUserById(int id) async {
+  static Future<UserModel?> getUserById(int id) async {
     final db = await DatabaseHelper.instance.database;
 
     final result = await db.query(
@@ -53,14 +47,14 @@ class UserController extends GetxController {
     );
 
     if (result.isNotEmpty) {
-      return User.fromMap(result.first);
+      return UserModel.fromMap(result.first);
     } else {
       return null; // Caso não encontre o usuário
     }
   }
 
   // Atualizar um usuário existente
-  static Future<bool> updateUser(User user) async {
+  static Future<bool> updateUser(UserModel user) async {
     try {
       final db = await DatabaseHelper.instance.database;
       final rowsUpdated = await db.update(
