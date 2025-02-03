@@ -56,7 +56,7 @@ class AuthController extends GetxController {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        print('⚠️ Login com Google cancelado.');
+        print('⚠️ Login com Google cancelado pelo usuário.');
         return;
       }
 
@@ -70,36 +70,43 @@ class AuthController extends GetxController {
       User? firebaseUser = userCredential.user;
 
       if (firebaseUser != null) {
-        // Verifica se o usuário já existe no SQLite
-        UserModel? existingUser = await getUserByEmail(firebaseUser.email ?? "");
-        int userId = existingUser?.id ?? 0;
+        final db = await database;
 
-        if (existingUser == null) {
-          userId = await insertUser(UserModel(
-            id: null, // SQLite gera o ID automaticamente
+        final List<Map<String, dynamic>> existingUsers = await db.query(
+          'users',
+          where: 'firebaseUid = ?',
+          whereArgs: [firebaseUser.uid],
+        );
+
+        UserModel user;
+        if (existingUsers.isEmpty) {
+          user = UserModel(
             firebaseUid: firebaseUser.uid,
             name: firebaseUser.displayName ?? "Usuário Google",
             email: firebaseUser.email ?? "Sem Email",
             password: null,
+            avatarUrl: firebaseUser.photoURL,
             isGoogleUser: true,
-          ));
+          );
+
+          try {
+            int userId = await db.insert('users', user.toMap());
+            user = user.copyWith(id: userId);
+            print('✅ Novo usuário criado no SQLite: ${user.toMap()}');
+          } catch (e) {
+            print('❌ Erro ao inserir usuário no SQLite: $e');
+            return;
+          }
+        } else {
+          user = UserModel.fromMap(existingUsers.first);
+          print('✅ Usuário já existe no SQLite: ${user.toMap()}');
         }
 
-        UserModel user = UserModel(
-          id: userId, // Agora está preenchido corretamente
-          firebaseUid: firebaseUser.uid,
-          name: firebaseUser.displayName ?? "Usuário Google",
-          email: firebaseUser.email ?? "Sem Email",
-          password: null,
-          isGoogleUser: true,
-        );
-
         await saveUserSession(user);
-        print('✅ Usuário logado via Google: ${user.toMap()}');
         Get.offAllNamed('/home');
       }
     } catch (e) {
-      print('❌ Erro ao logar com Google: $e');
+      print('❌ Erro ao fazer login com o Google: $e');
     }
   }
 
@@ -153,32 +160,46 @@ class AuthController extends GetxController {
   // ========================
   Future<void> saveUserSession(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('userId', user.id ?? 0);
+
+    await prefs.setString('userId', user.id.toString()); 
     await prefs.setString('userName', user.name);
     await prefs.setString('userEmail', user.email);
-    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('firebaseUid', user.firebaseUid ?? '');
     await prefs.setBool('isGoogleUser', user.isGoogleUser);
+
     print('💾 Sessão salva: ${user.toMap()}');
   }
 
   Future<UserModel?> getUserFromSession() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId');
+
+    final userIdString = prefs.getString('userId'); 
     final userName = prefs.getString('userName');
     final userEmail = prefs.getString('userEmail');
+    final firebaseUid = prefs.getString('firebaseUid');
     final isGoogleUser = prefs.getBool('isGoogleUser') ?? false;
 
-    if (userId != null && userName != null && userEmail != null) {
-      return UserModel(
-        id: userId,
-        name: userName,
-        email: userEmail,
-        isGoogleUser: isGoogleUser, 
-      );
+    if (userIdString == null || userName == null || userEmail == null || firebaseUid == null) {
+      print("⚠️ Nenhum usuário encontrado na sessão.");
+      return null;
     }
 
-    print("⚠️ Nenhum usuário na sessão.");
-    return null;
+    final int? userId = int.tryParse(userIdString);
+
+    if (userId == null) {
+      print("❌ Erro: userId inválido na sessão.");
+      return null;
+    }
+
+    print('🔄 Sessão carregada: userId: $userId, userName: $userName, userEmail: $userEmail');
+
+    return UserModel(
+      id: userId, 
+      firebaseUid: firebaseUid,
+      name: userName,
+      email: userEmail,
+      isGoogleUser: isGoogleUser,
+    );
   }
 
   Future<void> checkUserSession() async {

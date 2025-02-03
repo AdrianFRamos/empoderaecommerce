@@ -74,6 +74,9 @@ class DatabaseHelper {
         state TEXT NOT NULL,
         telefone TEXT NOT NULL,
         zipCode TEXT NOT NULL,
+        horario TEXT, 
+        observacao TEXT,
+        isPrimary INTEGER DEFAULT 0,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
       )
     ''');

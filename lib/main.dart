@@ -1,4 +1,5 @@
 import 'package:empoderaecommerce/models/userModel.dart';
+import 'package:empoderaecommerce/controller/authController.dart';
 import 'package:empoderaecommerce/screens/DeliveryOptionsScreen.dart';
 import 'package:empoderaecommerce/screens/ProductConfirmationScreen.dart';
 import 'package:empoderaecommerce/screens/ProductPriceStockScreen.dart';
@@ -33,13 +34,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
-    print('Firebase inicializado com sucesso!');
+    print('✅ Firebase inicializado com sucesso!');
   } catch (e) {
-    print('Erro ao inicializar o Firebase: $e');
+    print('❌ Erro ao inicializar o Firebase: $e');
   }
+
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
   Sqflite.setDebugModeOn(true);
+
   runApp(const MyApp());
 }
 
@@ -50,9 +53,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Empodera Ecommerce',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       routes: {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
@@ -67,36 +68,51 @@ class MyApp extends StatelessWidget {
         '/manage_products': (context) => const ManageProductsScreen(),
         '/edit_profile': (context) => const EditProfileScreen(),
         '/enderecos': (context) {
-          final userId = ModalRoute.of(context)!.settings.arguments as int;
-          return EnderecosScreen(userId: userId);
+          final userId = ModalRoute.of(context)?.settings.arguments as int?;
+          if (userId != null) {
+            return EnderecosScreen(userId: userId);
+          } else {
+            return const LoginScreen(); 
+          }
         },
-        '/edit_enderecos': (context) =>  EditEnderecosScreen(isEditing: false,),
+        '/edit_enderecos': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+          if (args == null || !args.containsKey('userId')) {
+            print("⚠️ Argumentos inválidos para EditEnderecosScreen. Redirecionando para Home.");
+            return const HomeScreen();
+          }
+
+          return EditEnderecosScreen(
+            isEditing: args['isEditing'] ?? false,
+          );
+        },
         '/categories': (context) => CategoriesScreen(),
         '/search_product': (context) {
-          final category = ModalRoute.of(context)!.settings.arguments as String;
-          return SearchProductScreen(category: category);
+          final category = ModalRoute.of(context)?.settings.arguments as String?;
+          return SearchProductScreen(category: category ?? '');
         },
         '/search_results': (context) {
-          final category = ModalRoute.of(context)!.settings.arguments as String;
-          return SearchResultsScreen(category: category);
+          final category = ModalRoute.of(context)?.settings.arguments as String?;
+          return SearchResultsScreen(category: category ?? '');
         },
         '/product_confirmation': (context) {
-          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return ProductConfirmationScreen(product: product);
+          final product = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return ProductConfirmationScreen(product: product ?? {});
         },
         '/product_price_stock': (context) {
-          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return ProductPriceStockScreen(product: product);
+          final product = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return ProductPriceStockScreen(product: product ?? {});
         },
         '/delivery_options': (context) {
-          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return DeliveryOptionsScreen(product: product);
+          final product = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return DeliveryOptionsScreen(product: product ?? {});
         },
         '/confirm_ad': (context) {
-          final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
           return ConfirmAdScreen(
-            product: arguments['product'],
-            deliveryOptions: arguments['deliveryOptions'],
+            product: arguments?['product'] ?? {},
+            deliveryOptions: arguments?['deliveryOptions'] ?? {},
           );
         },
         '/my_products': (context) => const MyProductsScreen(),
@@ -104,10 +120,23 @@ class MyApp extends StatelessWidget {
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/profile') {
-          final user = settings.arguments as UserModel;
           return MaterialPageRoute(
             builder: (context) {
-              return ProfileScreen(user: user);
+              return FutureBuilder<UserModel?>(
+                future: _getUserFromSession(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  } else if (snapshot.hasError || snapshot.data == null) {
+                    print("⚠️ Nenhum usuário logado encontrado na sessão.");
+                    return const LoginScreen();
+                  } else {
+                    return ProfileScreen(user: snapshot.data!);
+                  }
+                },
+              );
             },
           );
         }
@@ -122,5 +151,11 @@ class MyApp extends StatelessWidget {
         );
       },
     );
+  }
+
+  // 🔹 Obtém o usuário logado da sessão
+  Future<UserModel?> _getUserFromSession() async {
+    final authController = Get.put(AuthController());
+    return await authController.getUserFromSession();
   }
 }

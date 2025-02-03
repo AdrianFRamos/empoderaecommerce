@@ -164,7 +164,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         category: _product.category,
         price: _price,
         stock: _stock,
-        userId: user.id,  // Corrigido para usar userId do usuário logado
+        userId: user.id ?? 0,  // Corrigido para usar userId do usuário logado
       );
 
       await productController.updateProduct(updatedProduct);

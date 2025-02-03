@@ -1,4 +1,6 @@
+import 'package:empoderaecommerce/controller/adressController.dart';
 import 'package:empoderaecommerce/controller/authController.dart';
+import 'package:empoderaecommerce/models/adressModel.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
 import 'package:empoderaecommerce/screens/cartScreen.dart';
@@ -15,9 +17,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthController _authController = Get.put(AuthController());
+  final Adresscontroller _adressController = Get.put(Adresscontroller());
+  
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
   UserModel? _user;
+  Future<Address?>? futurePrimaryAddress;
+  int? userId;
 
   @override
   void initState() {
@@ -29,15 +35,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadUser() async {
     try {
       _user = await _authController.getUserFromSession();
-      print('Usuário carregado da sessão: $_user');
-      setState(() {});
+
+      if (_user == null) {
+        print("⚠️ Nenhum usuário carregado da sessão, redirecionando para login...");
+        Get.offAllNamed('/login');
+        return;
+      }
+
+      print('✅ Usuário carregado da sessão: ${_user?.toMap()}');
+
+      setState(() {
+        userId = _user?.id;
+        futurePrimaryAddress = _adressController.getPrimaryAddress(userId!);
+      });
     } catch (e) {
-      print('Erro ao carregar sessão: $e');
-      Get.snackbar(
-        'Erro',
-        'Falha ao carregar o usuário: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      print('❌ Erro ao carregar usuário: $e');
+      Get.snackbar('Erro', 'Falha ao carregar usuário: $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -153,15 +166,63 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.black54),
-                const SizedBox(width: 5),
-                Text(
-                  'Endereço',
-                  style: const TextStyle(color: Colors.black54),
+                Column(
+                  mainAxisSize: MainAxisSize.min, 
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FutureBuilder<Address?>(
+                      future: futurePrimaryAddress,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                    
+                        if (!snapshot.hasData || snapshot.data == null) {
+                          return GestureDetector(
+                            onTap: () {
+                              if (userId != null) {
+                                print("✅ Redirecionando para Endereços com userId: $userId");
+                                Navigator.pushNamed(context, '/enderecos', arguments: userId);
+                              } else {
+                                print("❌ Erro: userId está null. Não pode abrir /enderecos.");
+                                Get.snackbar("Erro", "Usuário não encontrado. Faça login novamente.");
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                Icon(Icons.location_on, color: Colors.red),
+                                SizedBox(width: 5),
+                                Text(
+                                  "Definir endereço principal",
+                                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                    
+                        final address = snapshot.data!;
+                        return Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.green), 
+                              SizedBox(
+                                child: Text(
+                                  "${address.street}, ${address.number} - ${address.city}",
+                                  style: TextStyle(color: Colors.black54, fontSize: 14),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 5),
             _buildCategoryIcons(),
             const SizedBox(height: 20),
             _buildPromotionsBanner(),

@@ -67,27 +67,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
 
       try {
+        print("🔄 Tentando atualizar usuário...");
+        print("🆔 ID: ${_user!.id}");
+        print("📧 E-mail: ${_user!.email}");
+        print("🔑 Senha: ${_password.isNotEmpty ? 'Alterada' : 'Não alterada'}");
+
         final success = await UserController.updateUser(
           UserModel(
             id: _user!.id,
             name: _name,
             email: _email,
-            password: _password.isNotEmpty ? _password : _user!.password, // 🔹 Mantém a senha antiga se não for alterada
+            password: _password.isNotEmpty ? _password : _user!.password,
             number: _phoneNumber,
             lastname: _lastname,
-            isGoogleUser: _user!.isGoogleUser, // 🔹 Mantém o status do Google Login
-            avatarUrl: _user!.avatarUrl, // 🔹 Mantém a foto de perfil
+            isGoogleUser: _user!.isGoogleUser,
+            avatarUrl: _user!.avatarUrl,
           ),
         );
 
+        print("🔎 Resultado da atualização: $success");
+
         if (success) {
-          Get.snackbar('Sucesso', 'Perfil atualizado com sucesso!', snackPosition: SnackPosition.BOTTOM);
-          Get.back();
+          print("✅ Atualização bem-sucedida!");
+          
+          Get.snackbar(
+            'Sucesso',
+            'Perfil atualizado com sucesso!',
+            snackPosition: SnackPosition.BOTTOM,
+            duration: Duration(seconds: 2),
+          );
+
+          await Future.delayed(Duration(seconds: 2));
+
+          Navigator.pushNamed(context, '/profile');
         } else {
-          Get.snackbar('Erro', 'Não foi possível atualizar o perfil.', snackPosition: SnackPosition.BOTTOM);
+          print("❌ Falha ao atualizar usuário!");
+          Get.snackbar(
+            'Erro',
+            'Não foi possível atualizar o perfil.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
         }
       } catch (e) {
-        Get.snackbar('Erro', 'Ocorreu um erro: $e', snackPosition: SnackPosition.BOTTOM);
+        print("❌ Exceção ao atualizar usuário: $e");
+        Get.snackbar(
+          'Erro',
+          'Ocorreu um erro: $e',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
 
       setState(() {

@@ -1,3 +1,5 @@
+import 'package:empoderaecommerce/const/hashedPassword.dart';
+
 class UserModel {
   final int? id; 
   final String? firebaseUid; 
@@ -27,7 +29,7 @@ class UserModel {
       'firebaseUid': firebaseUid,
       'name': name,
       'email': email,
-      'password': password,
+      'password': password != null && password!.isNotEmpty ? hashPassword(password!) : null, 
       'isGoogleUser': isGoogleUser ? 1 : 0,
       'avatarUrl': avatarUrl,
       'number': number,
@@ -48,4 +50,29 @@ class UserModel {
       lastname: map['lastname'],
     );
   }
+
+  UserModel copyWith({
+    int? id,
+    String? firebaseUid,
+    String? name,
+    String? email,
+    String? password,
+    String? avatarUrl,
+    String? lastname,
+    String? number,
+    bool? isGoogleUser,
+  }) {
+    return UserModel(
+      id: id ?? this.id, 
+      firebaseUid: firebaseUid ?? this.firebaseUid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      lastname: lastname ?? this.lastname,
+      number: number ?? this.number,
+      isGoogleUser: isGoogleUser ?? this.isGoogleUser,
+    );
+  }
 }
+

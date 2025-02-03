@@ -57,12 +57,17 @@ class UserController extends GetxController {
   static Future<bool> updateUser(UserModel user) async {
     try {
       final db = await DatabaseHelper.instance.database;
+      print("🔄 Chamando updateUser() para o usuário ID: ${user.id}");
+      print("📧 Atualizando e-mail: ${user.email}");
+      print("🔑 Atualizando senha: ${user.password != null ? 'Alterada' : 'Não alterada'}");
+      
       final rowsUpdated = await db.update(
         'users',
         user.toMap(),
         where: 'id = ?',
         whereArgs: [user.id],
       );
+      print("🔄 Linhas atualizadas: $rowsUpdated");
       return rowsUpdated > 0;
     } catch (e) {
       print('Erro ao atualizar usuário: $e');

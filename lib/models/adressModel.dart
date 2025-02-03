@@ -8,7 +8,10 @@ class Address {
   final String zipCode;
   final String bairro;       
   final String telefone;      
-  final String complement;
+  final String? complement;
+  final String? horario; 
+  final String? observacao; 
+  final int? isPrimary;
 
   Address({
     this.id,
@@ -21,6 +24,9 @@ class Address {
     this.bairro = '',
     this.telefone = '',
     this.complement = '',
+    this.horario = '', 
+    this.observacao = '', 
+    this.isPrimary
   });
 
   Map<String, dynamic> toMap() {
@@ -35,21 +41,27 @@ class Address {
       'bairro': bairro,
       'telefone': telefone,
       'complement': complement,
+      'horario': horario, 
+      'observacao': observacao,
+      'isPrimary': isPrimary,
     };
   }
 
-  static Address fromMap(Map<String, dynamic> map) {
+  factory Address.fromMap(Map<String, dynamic> map) {
     return Address(
-      id: map['id'],
-      userId: map['userId'],
-      street: map['street'],
-      number: map['number'],
-      city: map['city'],
-      state: map['state'],
-      zipCode: map['zipCode'],
+      id: map['id'] is int ? map['id'] : int.tryParse(map['id'].toString()) ?? 0,
+      userId: map['userId'] is int ? map['userId'] : int.tryParse(map['userId'].toString()) ?? 0, 
+      street: map['street'] ?? '',
+      number: map['number'] ?? '',
+      complement: map['complement'] ?? '',
+      city: map['city'] ?? '',
+      state: map['state'] ?? '',
+      zipCode: map['zipCode'] ?? '',
       bairro: map['bairro'] ?? '',
       telefone: map['telefone'] ?? '',
-      complement: map['complement'] ?? '',
+      horario: map['horario'] ?? '',
+      observacao: map['observacao'] ?? '', 
+      isPrimary: map['isPrimary'] ?? 0,
     );
   }
 }
