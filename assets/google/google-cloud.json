@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "empoderaecommerce",
+  "private_key_id": "04f3bd87b69847ffd049acb2fb659adfd6772509",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCcXlxiNMjti9s0\nOPVNjXBuUnIatBaHeAfoAyrAxqunsiQv6hpmZMUOWGjmlsJwxN8OyABs7iZlW7/1\nfk9jlvHF/4xA528vF7qiCfIvfHKgjRMwP64LDzWtJ99iaVWI5ks00D2fG50c7fCL\n/PVinuuvv1/mP/Col6y18PGm5a0y2rqjLQMX8BnGXgD8LNRpVFYpOKyLOc43FC1w\naobJnPJTfkrxuRZnS2FtoFxx9zkC6rW9nFdD9hHMK6EIo9h1lOefyLqQ+9rYEyCH\nZZf35SVzykSIJ1cKhY9ESy87lugWMtWQ9hlHrf5ZuHu6SovMRwmMGsKGx+ovS6X5\nlygGG77nAgMBAAECggEAAImAyyXNCMVEgiPTegCpX8tnaUnV5fnRC7ljxEPBBxNw\nOPi8Ply9MUBOBdLd7PDjASUcfo6W3Sy83B+MTXC+aaDRYs9z/8nxIvEAgrt7d6t6\n+ZHdfKct9QWLoRFSgDAtnk8AGvO/+jvBlz43QkX+iOhOQ2C9b+MNfZaAlYcP2piQ\n9dJMh5nmOWEYUG9CZRsbRnISYM9A2IUrlHszzTdG1mBF/AE3f5xvMvKt3l4QdHpt\nCO5i8VQ/M80UDM9QkxnKOGwBGUkuPikLCAQBdfKY/AFHeYTGRW7nMI5KKF+Ufa8x\n6yd/zH1lVty/yucMDhFjvYAwiha9ZWv3bsWkZzsEUQKBgQDMqTArXkPysTa0bnwd\nDdd9zxHTblfy430y1dRgNTv8u2HEFD+yWc6d2hL+aCyarXtuUQuJ7CBPXzJFBdMk\n4SIxSQVRvy89dDBtxzQfrH8rn8dXKidpeseLayOxyUYxRAL2+OVFRoc4wFc/J4Bx\ntWMTilCRnB3kBVVm+inu2cTKbwKBgQDDl/ZKBoNYiMiGjLQe9fnE/oPUTDGEWv8m\nv47wY4ZKvh1SK+lmUnaxJbfrVJZgTxTbp43vcpPM8LOxOev1Q8MFKmzcFLWJmnrL\nxNVrGkyiP61cTiFYjhKHTnmPJ7F2TY+CjZ+hpXy5IYpd8qEC0EfqsWWsBJGXeQS6\nCz+ag33vCQKBgGAXtDE4omiqAkh3c7jkjeBZQEJolczKOTeMJJpDhHXmuUGqTDn+\nZr/A65gd64t4lvK2BNfuUUFTLjQwRvIS7s37Pg8i2BhfnHl+xZ91i4Q9EgiAF180\nMcrpNCo+mcF58HZraKK9ObJQxOY3Mtyw0OMU1z128qXkRzQBk3y9LOPrAoGBAIPw\n0Zoz9IxXkPV6mtK72SYzDli6oTiIbdAErnaonGF1B7BzoLl+bUSojf24jMwg7JAT\n4iIhZ2R7BqxJx0smz7p/WPnJGoDdbXJhsBnUntdgHyDCL6peBE+z9zpDa2nDfkhy\nIrnXOWBlKMKhNk4AlFLUIiK83j2QzEh36AriIqSJAoGAKnIALbP5w0sbinyp6rht\nNsuYR0G9Yh4f44apqdhEzNVtd071VOKRBfqAqgtsNIUTgMoGinda3dtK1wJAfJXR\nLl1X8FcZQpdbylP6RSF9/sn4EX6GPl40Dd4/Xp++vHA6HA49tO7pSAbBIq64+ffI\ntiO1aKiUASEwJpMTA3w5/S0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "empoderaecommerce@empoderaecommerce.iam.gserviceaccount.com",
+  "client_id": "110660945677264875838",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/empoderaecommerce%40empoderaecommerce.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

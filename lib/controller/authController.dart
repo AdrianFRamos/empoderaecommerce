@@ -229,4 +229,30 @@ class AuthController extends GetxController {
     print('🚪 Usuário deslogado');
     Get.offAllNamed('/login');
   }
+
+  // ========================
+  //  🔹 AVATAR
+  // ========================
+  Future<void> updateUserAvatarInDB(int userId, String avatarUrl) async {
+    final db = await database;
+
+    try {
+      int updatedRows = await db.update(
+        'users',
+        {'avatarUrl': avatarUrl},
+        where: 'id = ?',
+        whereArgs: [userId],
+      );
+
+      if (updatedRows > 0) {
+        print("✅ Avatar atualizado com sucesso para o usuário ID: $userId");
+      } else {
+        print("⚠️ Nenhum usuário encontrado para atualizar o avatar.");
+      }
+    } catch (e) {
+      print("❌ Erro ao atualizar avatar no banco: $e");
+    }
+  }
+
 }
+
