@@ -19,6 +19,7 @@ migrate_working_dir/
 # Keystore files
 /android/key.properties
 /android/keystore/
+/assets/google/google-cloud.json
 
 
 # The .vscode folder contains launch configuration and tasks you configure in
