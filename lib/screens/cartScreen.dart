@@ -60,7 +60,7 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _removeFromCart(Product product) async {
     // Remove product from cart
     final cartcontroller = CartController();
-    await cartcontroller.removeProductFromCart(product.id!);
+    await cartcontroller.removeProductFromCart(product.id);
     _cart = await cartcontroller.getCart();
     setState(() {});
   }

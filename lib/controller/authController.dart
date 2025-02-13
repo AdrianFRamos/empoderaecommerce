@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:empoderaecommerce/controller/userController.dart';
+import 'package:empoderaecommerce/services/googledriveService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +16,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  var avatarUrl = "".obs;
+  final GoogleDriveService _driveService = GoogleDriveService();
+  final UserController _userController = UserController();
+  UserModel? _currentUser;
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -178,6 +188,7 @@ class AuthController extends GetxController {
     final userEmail = prefs.getString('userEmail');
     final firebaseUid = prefs.getString('firebaseUid');
     final isGoogleUser = prefs.getBool('isGoogleUser') ?? false;
+     final avatarUrlStored = prefs.getString('avatarUrl') ?? "";
 
     if (userIdString == null || userName == null || userEmail == null || firebaseUid == null) {
       print("⚠️ Nenhum usuário encontrado na sessão.");
@@ -191,13 +202,16 @@ class AuthController extends GetxController {
       return null;
     }
 
-    print('🔄 Sessão carregada: userId: $userId, userName: $userName, userEmail: $userEmail');
+    print('🔄 Sessão carregada: userId: $userId, userName: $userName, userEmail: $userEmail,avatarUrl: $avatarUrlStored');
+
+    avatarUrl.value = avatarUrlStored;
 
     return UserModel(
       id: userId, 
       firebaseUid: firebaseUid,
       name: userName,
       email: userEmail,
+      avatarUrl: avatarUrlStored,
       isGoogleUser: isGoogleUser,
     );
   }
@@ -233,26 +247,54 @@ class AuthController extends GetxController {
   // ========================
   //  🔹 AVATAR
   // ========================
-  Future<void> updateUserAvatarInDB(int userId, String avatarUrl) async {
-    final db = await database;
-
+   Future<void> selectAndUploadAvatar() async {
     try {
-      int updatedRows = await db.update(
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        File file = File(pickedFile.path);
+
+        // 🔄 Faz upload para Google Drive
+        String? imageUrl = await _driveService.uploadImageToDrive(file);
+
+        if (imageUrl != null && _currentUser != null) {
+          await updateUserAvatarInDB(_currentUser!.id!, imageUrl);
+          print("✅ Foto de perfil salva no Google Drive e no banco: $imageUrl");
+
+          // 🔄 Atualiza a UI automaticamente
+          avatarUrl.value = imageUrl;
+        }
+      }
+    } catch (e) {
+      print("❌ Erro ao selecionar e enviar foto: $e");
+    }
+  }
+
+  Future<void> updateUserAvatarInDB(int userId, String newAvatarUrl) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('avatarUrl', newAvatarUrl);
+
+      // 🔄 Atualiza a UI globalmente com GetX
+      avatarUrl.value = newAvatarUrl;
+
+      final db = await database;
+      final rowsUpdated = await db.update(
         'users',
-        {'avatarUrl': avatarUrl},
+        {'avatarUrl': newAvatarUrl},
         where: 'id = ?',
         whereArgs: [userId],
       );
 
-      if (updatedRows > 0) {
-        print("✅ Avatar atualizado com sucesso para o usuário ID: $userId");
+      if (rowsUpdated > 0) {
+        print("✅ Avatar atualizado no banco!");
       } else {
-        print("⚠️ Nenhum usuário encontrado para atualizar o avatar.");
+        print("⚠️ Nenhum avatar atualizado. O usuário pode não existir.");
       }
     } catch (e) {
       print("❌ Erro ao atualizar avatar no banco: $e");
     }
   }
-
 }
 

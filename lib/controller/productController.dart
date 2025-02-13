@@ -10,7 +10,15 @@ class ProductController extends GetxController {
 
   Future<int> addProduct(Product product) async {
     final db = await database;
-    return await db.insert('products', product.toMap());
+
+    try {
+      final int id = await db.insert('products', product.toMap());
+      print("✅ Produto inserido com sucesso: ${product.toMap()}");
+      return id;
+    } catch (e) {
+      print("❌ Erro ao inserir produto: $e");
+      return -1;
+    }
   }
 
   Future<int> updateProduct(Product product) async {

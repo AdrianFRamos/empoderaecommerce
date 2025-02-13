@@ -148,6 +148,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       userId: user.id ?? 0, 
       stock: _stock,  
       price: _price, 
+      imageUrl: ''
     );
 
     try {

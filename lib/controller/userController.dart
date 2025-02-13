@@ -75,6 +75,23 @@ class UserController extends GetxController {
     }
   }
 
+  Future<bool> updateUserAvatar(UserModel user) async {
+    try {
+      final db = await _database;
+      final rowsUpdated = await db.update(
+        'users',
+        {'avatarUrl': user.avatarUrl},
+        where: 'id = ?',
+        whereArgs: [user.id],
+      );
+      print("✅ Avatar atualizado no banco!");
+      return rowsUpdated > 0;
+    } catch (e) {
+      print('❌ Erro ao atualizar avatar no banco: $e');
+      return false;
+    }
+  }
+
   // Deletar um usuário pelo ID
   Future<int> deleteUser(int id) async {
     final db = await _database;

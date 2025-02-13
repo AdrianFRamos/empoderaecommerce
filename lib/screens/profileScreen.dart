@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:empoderaecommerce/controller/authController.dart';
+import 'package:empoderaecommerce/services/googledriveService.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final AuthController _authController = Get.put(AuthController());
+  final GoogleDriveService _driveService = GoogleDriveService();
   late UserModel _user;
   File? _avatarImage;
 
@@ -37,20 +39,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _saveAvatarToPreferences(String path) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userAvatarPath', path);
-  }
-
   Future<void> _pickAvatar() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      File newAvatar = File(pickedFile.path);
       setState(() {
-        _avatarImage = File(pickedFile.path);
+        _avatarImage = newAvatar;
       });
-      await _saveAvatarToPreferences(pickedFile.path);
+
+      print("📤 Enviando nova foto para o Google Drive...");
+      String? imageUrl = await _driveService.uploadImageToDrive(newAvatar);
+
+      if (imageUrl != null) {
+        print("✅ Foto salva no Google Drive: $imageUrl");
+
+        // 🔄 Atualiza o banco e a UI
+        await _authController.updateUserAvatarInDB(_user.id!, imageUrl);
+        print("✅ Avatar atualizado no banco!");
+
+        // 🔄 Atualiza o modelo de usuário e a interface
+        setState(() {
+          _user = _user.copyWith(avatarUrl: imageUrl);
+        });
+      } else {
+        print("❌ Erro ao fazer upload da imagem.");
+      }
     }
   }
 
@@ -64,7 +79,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Cabeçalho do perfil
           Center(
             child: Column(
               children: [
@@ -98,12 +112,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 20),
           const Divider(),
-          // Itens do menu
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Dados pessoais'),
             onTap: () {
-              // Navegar para a tela de dados pessoais
               Navigator.pushNamed(context, '/edit_profile');
             },
           ),
@@ -111,14 +123,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             leading: const Icon(Icons.location_on),
             title: const Text('Endereços'),
             onTap: () async {
-              // Obter o usuário da sessão CORRETAMENTE
               UserModel? loggedUser = await _authController.getUserFromSession();
-
               if (loggedUser != null) {
                 final userId = loggedUser.id;
                 Navigator.pushNamed(context, '/enderecos', arguments: userId);
               } else {
-                // Se não há usuário logado, vá para login
                 Navigator.pushNamed(context, '/login');
               }
             },
@@ -127,15 +136,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             leading: const Icon(Icons.privacy_tip),
             title: const Text('Privacidade'),
             onTap: () {
-              // Navegar para a tela de privacidade
               Navigator.pushNamed(context, '/privacidade');
             },
           ),
           const Divider(),
-          // Botões de ações
           ElevatedButton(
             onPressed: () {
-              // Navegar para a edição de perfil
               Navigator.pushNamed(context, '/edit_profile', arguments: _user);
             },
             child: const Text('Editar Perfil'),
@@ -143,7 +149,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () async {
-              // Função de logout
               await _authController.logout();
               Navigator.pushNamedAndRemoveUntil(
                   context, '/login', (route) => false);

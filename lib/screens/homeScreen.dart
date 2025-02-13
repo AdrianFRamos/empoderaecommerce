@@ -1,5 +1,6 @@
 import 'package:empoderaecommerce/controller/adressController.dart';
 import 'package:empoderaecommerce/controller/authController.dart';
+import 'package:empoderaecommerce/controller/productController.dart';
 import 'package:empoderaecommerce/models/adressModel.dart';
 import 'package:empoderaecommerce/models/productModel.dart';
 import 'package:empoderaecommerce/models/userModel.dart';
@@ -56,14 +57,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadProducts() async {
     try {
-      //final productcontroller = Productcontroller();
-      //final products = await productcontroller.getProducts();
+      final productController = Get.put(ProductController());
+      final products = await productController.getProducts();
+
       setState(() {
         _products = products;
         _filteredProducts = products;
       });
-      print('Produtos carregados: ${_products.length}');
+
+      print('✅ Produtos carregados: ${_products.length}');
     } catch (e) {
+      print('❌ Erro ao carregar produtos: $e');
       Get.snackbar(
         'Erro',
         'Falha ao carregar produtos: $e',
@@ -71,7 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
-
 
   void _logout() {
     _authController.emailController.clear();
@@ -116,16 +119,15 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            UserAccountsDrawerHeader(
+            Obx(() => UserAccountsDrawerHeader(
               decoration: BoxDecoration(color: Colors.yellow[700]),
               accountName: Text(_user?.name ?? 'Usuário'),
               accountEmail: Text(_user?.email ?? 'email@exemplo.com'),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Text(
-                  (_user?.avatarUrl ?? "A")[0],
-                  style: const TextStyle(fontSize: 24, color: Colors.black),
-                ),
+                backgroundImage: _authController.avatarUrl.value.isNotEmpty
+                    ? NetworkImage(_authController.avatarUrl.value) // 🔄 Agora carrega a nova imagem
+                    : AssetImage("assets/default_avatar.png") as ImageProvider,
               ),
               onDetailsPressed: () {
                 if (_user != null) {
@@ -138,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
               },
-            ),
+            )),
             _buildDrawerItem(Icons.search, 'Buscar'),
             _buildDrawerItem(Icons.shopping_bag, 'Minhas compras'),
             _buildDrawerItem(Icons.favorite, 'Favoritos'),
@@ -308,59 +310,68 @@ final List<Map<String, dynamic>> _categoryItems = [
     }
 
     return SizedBox(
-      height: 150,
+      height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: _products.length,
         itemBuilder: (context, index) {
           final product = _products[index];
-          return Container(
-            width: 120,
-            margin: const EdgeInsets.only(right: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                      image: DecorationImage(
-                        image: AssetImage('assets/product.png'),
-                        fit: BoxFit.cover,
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                '/product_details',
+                arguments: product.toMap(),
+              );
+            },
+            child: Container(
+              width: 140,
+              margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                        image: DecorationImage(
+                          image: AssetImage('assets/product_placeholder.png'), // Ajuste conforme necessário
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        product.name,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        'R\$ ${product.price}',
-                        style: const TextStyle(fontSize: 12, color: Colors.green),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'R\$ ${product.price.toStringAsFixed(2)}',
+                          style: const TextStyle(fontSize: 14, color: Colors.green),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -368,44 +379,6 @@ final List<Map<String, dynamic>> _categoryItems = [
     );
   }
 
-  final List<Product> products = [
-    Product(
-      id: 1,
-      name: 'Produto 1',
-      description: 'Descrição do Produto 1',
-      category: 'Categoria 1',
-      price: 10.99, 
-      stock: 1,
-      userId: 0
-    ),
-    Product(
-      id: 2,
-      name: 'Produto 2',
-      description: 'Descrição do Produto 2',
-      category: 'Categoria 2',
-      price: 19.99,
-      stock: 1,
-      userId: 0
-    ),
-    Product(
-      id: 3,
-      name: 'Produto 3',
-      description: 'Descrição do Produto 3',
-      category: 'Categoria 3',
-      price: 5.99,
-      stock: 1,
-      userId: 0
-    ),
-    Product(
-      id: 4,
-      name: 'Produto 4',
-      description: 'Descrição do Produto 4',
-      category: 'Categoria 4',
-      price: 15.99,
-      stock: 1,
-      userId: 0
-    ),
-  ];
   Widget _buildDrawerItem(IconData icon, String title,
       {bool hasNotification = false, VoidCallback? onTap}) {
     return ListTile(

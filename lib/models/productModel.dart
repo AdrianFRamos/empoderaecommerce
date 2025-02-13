@@ -1,4 +1,3 @@
-
 class Product {
   final int id;
   final String name;
@@ -6,7 +5,8 @@ class Product {
   final double price;
   final int stock;
   final String category;
-  final int? userId;
+  final int userId;
+  final String imageUrl; // 🔹 Novo campo
 
   Product({
     required this.id,
@@ -15,11 +15,12 @@ class Product {
     required this.price,
     required this.stock,
     required this.category,
-    required this.userId
+    required this.userId,
+    required this.imageUrl, // 🔹 Adicionado
   });
 
   Map<String, dynamic> toMap() {
-    final map = {
+    return {
       'id': id,
       'name': name,
       'description': description,
@@ -27,23 +28,20 @@ class Product {
       'stock': stock,
       'category': category,
       'userId': userId,
+      'imageUrl': imageUrl, // 🔹 Adicionado
     };
-    if (id != null) {
-      map['id'] = id!;
-    }
-    return map;
   }
 
   factory Product.fromMap(Map<String, dynamic> map) {
-  return Product(
-    id: map['id'] ?? '0', 
-    name: map['name'] ?? 'Produto sem nome',
-    description: map['description'] ?? 'Sem descrição',
-    price: (map['price'] as num?)?.toDouble() ?? 0.0, 
-    stock: (map['stock'] as num?)?.toInt() ?? 0,
-    category: map['category'] ?? 'Sem categoria',
-    userId: map['userId'] ?? '0',
-  );
-}
-
+    return Product(
+      id: map['id'],
+      name: map['name'] ?? 'Produto sem nome',
+      description: map['description'] ?? 'Sem descrição',
+      price: (map['price'] as num?)?.toDouble() ?? 0.0,
+      stock: (map['stock'] as num?)?.toInt() ?? 0,
+      category: map['category'] ?? 'Sem categoria',
+      userId: map['userId'],
+      imageUrl: map['imageUrl'] ?? 'assets/product_placeholder.png', // 🔹 Caminho da imagem
+    );
+  }
 }
