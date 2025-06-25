@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Users/User/Desktop/Aplicativos_laphis/empoderaecommerce/linux"
+    "cmake.sourceDirectory": "C:/Users/User/Desktop/Aplicativos_laphis/empoderaecommerce/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
